@@ -11,7 +11,7 @@ public class Transaccion {
     private String idCuentaDestino;
     private float monto;
     private TipoTransaccion tipo;
-    private Date fecha;
+    private Long fecha;
 
     public String getId() {
         return id;
@@ -53,11 +53,15 @@ public class Transaccion {
         this.tipo = tipo;
     }
 
-    public Date getFecha() {
+    public Long getFecha() {
         return fecha;
     }
 
-    public void setFecha(Date fecha) {
+    public void setFecha(Long fecha) {
         this.fecha = fecha;
+    }
+
+    public Date getFechaDate() {
+        return new Date(fecha);
     }
 }

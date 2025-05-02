@@ -10,7 +10,7 @@ public class Cuenta {
     private String idCliente;
     private float saldo;
     private TipoCuenta tipo;
-    private Date fechaCreacion;
+    private Long fechaCreacion;
 
     public String getId() {
         return id;
@@ -44,11 +44,11 @@ public class Cuenta {
         this.tipo = tipoCuenta;
     }
 
-    public Date getFechaCreacion() {
+    public Long getFechaCreacion() {
         return fechaCreacion;
     }
 
-    public void setFechaCreacion(Date fechaCreacion) {
+    public void setFechaCreacion(Long fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
 }
