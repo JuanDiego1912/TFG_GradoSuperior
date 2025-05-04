@@ -1,6 +1,6 @@
 package jdrb.banco.simulador.model.enums;
 
-public enum TipoTransaccion {
+public enum TransactionType {
     DEPOSITO,
     RETIRO,
     TRANSFERENCIA

@@ -1,5 +1,5 @@
 package jdrb.banco.simulador.model.enums;
 
-public enum TipoCuenta {
+public enum AccountType {
     AHORRO, CORRIENTE
 }

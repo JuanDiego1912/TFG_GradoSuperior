@@ -1,8 +1,8 @@
 package jdrb.banco.simulador.dao;
 
-import jdrb.banco.simulador.dao.implementacion.TransaccionDAOImpl;
-import jdrb.banco.simulador.model.Transaccion;
-import jdrb.banco.simulador.model.enums.TipoTransaccion;
+import jdrb.banco.simulador.dao.implementation.TransactionDAOImpl;
+import jdrb.banco.simulador.model.Transaction;
+import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,19 +13,19 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class TransaccionDAOImplTest {
+public class TransactionDAOImplTest {
 
     private Connection connection;
     private PreparedStatement ps;
     private ResultSet rs;
-    private TransaccionDAOImpl dao;
+    private TransactionDAOImpl dao;
 
     @BeforeEach
     public void setUp() throws SQLException {
         connection = mock(Connection.class);
         ps = mock(PreparedStatement.class);
         rs = mock(ResultSet.class);
-        dao = new TransaccionDAOImpl(connection);
+        dao = new TransactionDAOImpl(connection);
 
         when(connection.prepareStatement(anyString())).thenReturn(ps);
     }
@@ -34,8 +34,8 @@ public class TransaccionDAOImplTest {
     public void testInsertarTransaccion_Exito() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Transaccion tx = crearTransaccionValida();
-        boolean resultado = dao.insertarTransaccion(tx);
+        Transaction tx = crearTransaccionValida();
+        boolean resultado = dao.insertTransaction(tx);
 
         assertTrue(resultado);
         verify(ps).executeUpdate();
@@ -43,20 +43,20 @@ public class TransaccionDAOImplTest {
 
     @Test
     public void testInsertarTransaccion_IdNulo() {
-        Transaccion tx = crearTransaccionValida();
+        Transaction tx = crearTransaccionValida();
         tx.setId(null);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertarTransaccion(tx));
-        assertTrue(ex.getMessage().contains("debe de tener un id"));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertTransaction(tx));
+        assertTrue(ex.getMessage().contains("must have an id"));
     }
 
     @Test
     public void testInsertarTransaccion_CuentaDestinoNula() {
-        Transaccion tx = crearTransaccionValida();
-        tx.setIdCuentaDestino(null);
+        Transaction tx = crearTransaccionValida();
+        tx.setDestinationAccountId(null);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertarTransaccion(tx));
-        assertTrue(ex.getMessage().contains("cuenta destino"));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertTransaction(tx));
+        assertTrue(ex.getMessage().contains("destination account"));
     }
 
     @Test
@@ -65,7 +65,7 @@ public class TransaccionDAOImplTest {
         when(rs.next()).thenReturn(true);
         mockResultSetTransaccion(rs);
 
-        Transaccion tx = dao.obtenerTransaccionPorId("tx123");
+        Transaction tx = dao.getTransactionById("tx123");
 
         assertNotNull(tx);
         assertEquals("tx123", tx.getId());
@@ -77,7 +77,7 @@ public class TransaccionDAOImplTest {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
 
-        Transaccion tx = dao.obtenerTransaccionPorId("noexiste");
+        Transaction tx = dao.getTransactionById("noexiste");
         assertNull(tx);
     }
 
@@ -87,10 +87,10 @@ public class TransaccionDAOImplTest {
         when(rs.next()).thenReturn(true, false);
         mockResultSetTransaccion(rs);
 
-        List<Transaccion> lista = dao.obtenerTransaccionesPorCuentaOrigen("cuenta1");
+        List<Transaction> lista = dao.getTransactionsBySourceAccount("cuenta1");
 
         assertEquals(1, lista.size());
-        assertEquals("cuenta1", lista.get(0).getIdCuentaOrigen());
+        assertEquals("cuenta1", lista.get(0).getOriginAccountId());
     }
 
     @Test
@@ -99,10 +99,10 @@ public class TransaccionDAOImplTest {
         when(rs.next()).thenReturn(true, false);
         mockResultSetTransaccion(rs);
 
-        List<Transaccion> lista = dao.obtenerTransaccionesPorCuentaDestino("cuenta2");
+        List<Transaction> lista = dao.getTransactionsByDestinationAccount("cuenta2");
 
         assertEquals(1, lista.size());
-        assertEquals("cuenta2", lista.get(0).getIdCuentaDestino());
+        assertEquals("cuenta2", lista.get(0).getDestinationAccountId());
     }
 
     @Test
@@ -114,21 +114,21 @@ public class TransaccionDAOImplTest {
         Date desde = new Date(System.currentTimeMillis() - 100000);
         Date hasta = new Date();
 
-        List<Transaccion> lista = dao.obtenerTransaccionesEntreFechas("cuenta1", desde, hasta);
+        List<Transaction> lista = dao.getTransactionsBetweenDates("cuenta1", desde, hasta);
 
         assertEquals(1, lista.size());
-        assertEquals("cuenta1", lista.get(0).getIdCuentaOrigen());
+        assertEquals("cuenta1", lista.get(0).getOriginAccountId());
     }
 
     // Utilidades de test
-    private Transaccion crearTransaccionValida() {
-        Transaccion tx = new Transaccion();
+    private Transaction crearTransaccionValida() {
+        Transaction tx = new Transaction();
         tx.setId("tx123");
-        tx.setIdCuentaOrigen("cuenta1");
-        tx.setIdCuentaDestino("cuenta2");
-        tx.setMonto(1000f);
-        tx.setTipo(TipoTransaccion.TRANSFERENCIA);
-        tx.setFecha(System.currentTimeMillis());
+        tx.setOriginAccountId("cuenta1");
+        tx.setDestinationAccountId("cuenta2");
+        tx.setTransactionAmount(1000f);
+        tx.setType(TransactionType.TRANSFERENCIA);
+        tx.setDate(System.currentTimeMillis());
         return tx;
     }
 

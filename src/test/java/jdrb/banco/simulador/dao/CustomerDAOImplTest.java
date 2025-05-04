@@ -1,7 +1,7 @@
 package jdrb.banco.simulador.dao;
 
-import jdrb.banco.simulador.dao.implementacion.ClienteDAOImpl;
-import jdrb.banco.simulador.model.Cliente;
+import jdrb.banco.simulador.dao.implementation.CustomerDAOImpl;
+import jdrb.banco.simulador.model.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,13 +11,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ClienteDAOImplTest {
+public class CustomerDAOImplTest {
 
     private Connection connection;
     private PreparedStatement ps;
     private Statement statement;
     private ResultSet rs;
-    private ClienteDAOImpl dao;
+    private CustomerDAOImpl dao;
 
     @BeforeEach
     public void setUp() throws SQLException {
@@ -25,7 +25,7 @@ public class ClienteDAOImplTest {
         ps = mock(PreparedStatement.class);
         statement = mock(Statement.class);
         rs = mock(ResultSet.class);
-        dao = new ClienteDAOImpl(connection);
+        dao = new CustomerDAOImpl(connection);
 
         when(connection.prepareStatement(anyString())).thenReturn(ps);
         when(connection.createStatement()).thenReturn(statement);
@@ -35,8 +35,8 @@ public class ClienteDAOImplTest {
     public void testInsertarCliente() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Cliente cliente = crearClienteValido();
-        boolean resultado = dao.insertarCliente(cliente);
+        Customer cliente = crearClienteValido();
+        boolean resultado = dao.insertCustomer(cliente);
 
         assertTrue(resultado);
     }
@@ -47,7 +47,7 @@ public class ClienteDAOImplTest {
         when(rs.next()).thenReturn(true);
         mockResultSetCliente(rs);
 
-        Cliente cliente = dao.obtenerClientePorId("cli1");
+        Customer cliente = dao.getCustomerById("cli1");
 
         assertNotNull(cliente);
         assertEquals("cli1", cliente.getId());
@@ -58,7 +58,7 @@ public class ClienteDAOImplTest {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
 
-        Cliente cliente = dao.obtenerClientePorId("noexiste");
+        Customer cliente = dao.getCustomerById("noexiste");
 
         assertNull(cliente);
     }
@@ -70,7 +70,7 @@ public class ClienteDAOImplTest {
         when(rs.next()).thenReturn(true, false);
         mockResultSetCliente(rs);
 
-        List<Cliente> clientes = dao.obtenerClientes();
+        List<Customer> clientes = dao.getAllCustomers();
 
         assertEquals(1, clientes.size());
     }
@@ -80,8 +80,8 @@ public class ClienteDAOImplTest {
     public void testActualizarCliente() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Cliente cliente = crearClienteValido();
-        boolean resultado = dao.actualizarCliente(cliente);
+        Customer cliente = crearClienteValido();
+        boolean resultado = dao.updateCustomer(cliente);
 
         assertTrue(resultado);
     }
@@ -90,16 +90,16 @@ public class ClienteDAOImplTest {
     public void testEliminarCliente() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        boolean eliminado = dao.eliminarCliente("cli1");
+        boolean eliminado = dao.deleteCustomer("cli1");
 
         assertTrue(eliminado);
     }
 
-    private Cliente crearClienteValido() {
-        Cliente cliente = new Cliente();
+    private Customer crearClienteValido() {
+        Customer cliente = new Customer();
         cliente.setId("cli1");
-        cliente.setNombre("Juan");
-        cliente.setApellido("Perez");
+        cliente.setName("Juan");
+        cliente.setLastname("Perez");
         cliente.setDni("12345678");
         return cliente;
     }
