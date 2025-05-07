@@ -1,5 +1,6 @@
 package jdrb.banco.simulador.model;
 
+import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
 
 import java.util.Date;
@@ -12,16 +13,38 @@ public class Transaction {
     private float transactionAmount;
     private TransactionType type;
     private Long date;
+    private TransactionStates state;
 
     public Transaction() {}
 
-    public Transaction(String id, String originAccountId, String destinationAccountId, float transactionAmount, TransactionType type, Long date) {
+    public Transaction(String id,
+                       String originAccountId,
+                       String destinationAccountId,
+                       float transactionAmount,
+                       TransactionType type,
+                       Long date) {
         this.id = id;
         this.originAccountId = originAccountId;
         this.destinationAccountId = destinationAccountId;
         this.transactionAmount = transactionAmount;
         this.type = type;
         this.date = date;
+    }
+
+    public Transaction(String id,
+                       String originAccountId,
+                       String destinationAccountId,
+                       float transactionAmount,
+                       TransactionType type,
+                       Long date,
+                       TransactionStates state) {
+        this.id = id;
+        this.originAccountId = originAccountId;
+        this.destinationAccountId = destinationAccountId;
+        this.transactionAmount = transactionAmount;
+        this.type = type;
+        this.date = date;
+        this.state = state;
     }
 
     public String getId() {
@@ -74,5 +97,13 @@ public class Transaction {
 
     public Date getFechaDate() {
         return new Date(date);
+    }
+
+    public TransactionStates getState() {
+        return state;
+    }
+
+    public void setState(TransactionStates state) {
+        this.state = state;
     }
 }

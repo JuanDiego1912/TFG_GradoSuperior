@@ -7,6 +7,7 @@ import jdrb.banco.simulador.model.Account;
 import jdrb.banco.simulador.model.Customer;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.model.enums.AccountType;
+import jdrb.banco.simulador.model.enums.CustomerStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ public class ServiceImplTest {
     void registerAccount_validAccount_shouldSucceed() {
         Account acc = new Account("A1", "C1", 100.0f, AccountType.SAVINGS, System.currentTimeMillis());
         when(accountDAO.registerAccount(acc)).thenReturn(true);
+
         assertTrue(accountService.registerAccount(acc));
         verify(accountDAO).registerAccount(acc);
     }
@@ -57,34 +59,70 @@ public class ServiceImplTest {
 
     @Test
     void getAccountById_emptyId_shouldThrow() {
-        assertThrows(IllegalArgumentException.class, () -> accountService.getAccountById(""));
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.getAccountById(""));
+        assertEquals("Account ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
     void updateAccount_invalidAccount_shouldThrow() {
         Account acc = new Account(null, null, 0, null, 0L);
-        assertThrows(IllegalArgumentException.class, () -> accountService.updateAccount(acc));
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.updateAccount(acc));
+        assertEquals("Invalid account data", ex.getMessage());
+    }
+
+    @Test
+    void deleteAccount_invalidId_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccount(""));
+        assertEquals("Account ID cannot be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void deleteAccountForClient_nullIds_shouldThrow() {
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccountForClient(null, null));
+        assertEquals("Client ID and Account ID cannot be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void getAccountsByClient_valid_shouldReturnList() {
+        Account a1 = new Account("A1", "C1", 100f, AccountType.SAVINGS, System.currentTimeMillis());
+        when(accountDAO.getAccountsByClient("C1")).thenReturn(Arrays.asList(a1));
+
+        List<Account> result = accountService.getAccountsByClient("C1");
+
+        assertEquals(1, result.size());
+        assertEquals("A1", result.get(0).getId());
     }
 
     // ----------------------- CustomerService Tests -------------------------
 
     @Test
     void registerCustomer_valid_shouldSucceed() {
-        Customer c = new Customer("C1", "Juan", "Perez", "12345678", "jperez@example.com",  "643461329");
+        Customer c = new Customer("C1", "Juan", "Perez", "12345678", "jperez@example.com", "643461329", System.currentTimeMillis(), CustomerStates.ACTIVE);
         when(customerDAO.registerCustomer(c)).thenReturn(true);
+
         assertTrue(customerService.registerCustomer(c));
         verify(customerDAO).registerCustomer(c);
     }
 
     @Test
     void registerCustomer_invalid_shouldThrow() {
-        Customer c = new Customer(null, null, null, null, null, null);
-        assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
+        Customer c = new Customer(null, null, null, null, null, null, 0L, null);
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
+        assertEquals("Invalid customer data", ex.getMessage());
     }
 
     @Test
     void getCustomerById_null_shouldThrow() {
-        assertThrows(IllegalArgumentException.class, () -> customerService.getCustomerById(null));
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.getCustomerById(null));
+        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
+    }
+
+    @Test
+    void deleteCustomer_validId_shouldSucceed() {
+        when(customerDAO.deleteCustomer("C1")).thenReturn(true);
+
+        assertTrue(customerService.deleteCustomer("C1"));
+        verify(customerDAO).deleteCustomer("C1");
     }
 
     // ---------------------- TransactionService Tests -----------------------
@@ -93,6 +131,7 @@ public class ServiceImplTest {
     void registerTransaction_valid_shouldSucceed() {
         Transaction t = new Transaction("T1", "A1", "A2", 500f, TransactionType.TRANSFER, System.currentTimeMillis());
         when(transactionDAO.registerTransaction(t)).thenReturn(true);
+
         assertTrue(transactionService.registerTransaction(t));
         verify(transactionDAO).registerTransaction(t);
     }
@@ -100,47 +139,25 @@ public class ServiceImplTest {
     @Test
     void registerTransaction_negativeAmount_shouldThrow() {
         Transaction t = new Transaction("T1", "A1", "A2", -5f, TransactionType.TRANSFER, System.currentTimeMillis());
-        assertThrows(RuntimeException.class, () -> transactionService.registerTransaction(t));
+
+        Exception ex = assertThrows(RuntimeException.class, () -> transactionService.registerTransaction(t));
+        assertEquals("Amount must be positive", ex.getMessage());
     }
 
     @Test
     void getTransactionsBetweenDates_invalidDates_shouldThrow() {
         Date now = new Date();
         Date before = new Date(now.getTime() - 10000);
-        assertThrows(IllegalArgumentException.class, () ->
+
+        Exception ex = assertThrows(IllegalArgumentException.class, () ->
                 transactionService.getTransactionsBetweenDates("A1", now, before)
         );
+        assertEquals("Start date must be before end date", ex.getMessage());
     }
 
     @Test
     void getTransactionById_null_shouldThrow() {
-        assertThrows(IllegalArgumentException.class, () -> transactionService.getTransactionById(null));
-    }
-
-    // ---------------- General validations -------------------
-
-    @Test
-    void deleteCustomer_validId_shouldSucceed() {
-        when(customerDAO.deleteCustomer("C1")).thenReturn(true);
-        assertTrue(customerService.deleteCustomer("C1"));
-    }
-
-    @Test
-    void deleteAccount_invalidId_shouldThrow() {
-        assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccount(""));
-    }
-
-    @Test
-    void deleteAccountForClient_nullIds_shouldThrow() {
-        assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccountForClient(null, null));
-    }
-
-    @Test
-    void getAccountsByClient_valid_shouldReturnList() {
-        Account a1 = new Account("A1", "C1", 100f, AccountType.SAVINGS, System.currentTimeMillis());
-        when(accountDAO.getAccountsByClient("C1")).thenReturn(Arrays.asList(a1));
-        List<Account> result = accountService.getAccountsByClient("C1");
-        assertEquals(1, result.size());
-        assertEquals("A1", result.get(0).getId());
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> transactionService.getTransactionById(null));
+        assertEquals("Transaction ID cannot be null or empty", ex.getMessage());
     }
 }

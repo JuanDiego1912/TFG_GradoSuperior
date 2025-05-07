@@ -2,10 +2,13 @@ package jdrb.banco.simulador.dao.implementations;
 
 import jdrb.banco.simulador.dao.CustomerDAO;
 import jdrb.banco.simulador.model.Customer;
+import jdrb.banco.simulador.model.enums.CustomerStates;
 
 import java.sql.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class CustomerDAOImpl implements CustomerDAO {
 
@@ -17,7 +20,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean registerCustomer(Customer customer) {
-        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         int customerInserted = 0;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -28,6 +31,8 @@ public class CustomerDAOImpl implements CustomerDAO {
             statement.setString(4, customer.getDni());
             statement.setString(5, customer.getEmail());
             statement.setString(6, customer.getCustomerPhone());
+            statement.setLong(7, customer.getRegistrationDate());
+            statement.setString(8, customer.getState().name());
             customerInserted = statement.executeUpdate();
 
         } catch (SQLException sqlEx) {
@@ -46,14 +51,25 @@ public class CustomerDAOImpl implements CustomerDAO {
             ps.setString(1, id);
             ResultSet rs = ps.executeQuery();
 
+            String[] customerStates = Arrays.stream(CustomerStates.values()).map(CustomerStates::name).toArray(String[]::new);
+
             if (rs.next()) {
+
+                String state = rs.getString("estado");
+
+                if (!Arrays.asList(customerStates).contains(state.toUpperCase(Locale.ROOT))) {
+                    throw new IllegalArgumentException("Invalid state: " + state);
+                }
+
                 return setCustomerData(
                         rs.getString("id"),
                         rs.getString("nombre"),
                         rs.getString("apellido"),
                         rs.getString("dni"),
                         rs.getString("email"),
-                        rs.getString("telefono")
+                        rs.getString("telefono"),
+                        rs.getLong("fecha_registro"),
+                        rs.getString("estado")
                 );
             }
             rs.close();
@@ -79,7 +95,9 @@ public class CustomerDAOImpl implements CustomerDAO {
                         rs.getString("apellido"),
                         rs.getString("dni"),
                         rs.getString("email"),
-                        rs.getString("telefono")
+                        rs.getString("telefono"),
+                        rs.getLong("fecha_registro"),
+                        rs.getString("estado")
                 );
                 customers.add(customer);
             }
@@ -92,7 +110,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET nombre = ?, apellido = ?, dni = ?, email = ?, telefono = ? WHERE id = ?";
+        String sql = "UPDATE customers SET nombre = ?, apellido = ?, dni = ?, email = ?, telefono = ?, estado = ? WHERE id = ?";
         int customerUpdated = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -102,7 +120,8 @@ public class CustomerDAOImpl implements CustomerDAO {
             ps.setString(3, customer.getDni());
             ps.setString(4, customer.getEmail());
             ps.setString(5, customer.getCustomerPhone());
-            ps.setString(6, customer.getId());
+            ps.setString(6, customer.getState().name());
+            ps.setString(7, customer.getId());
 
             customerUpdated = ps.executeUpdate();
 
@@ -135,7 +154,9 @@ public class CustomerDAOImpl implements CustomerDAO {
                                    String lastname,
                                    String dni,
                                    String email,
-                                   String phone) {
+                                   String phone,
+                                   Long registerDate,
+                                   String state) {
         Customer customer = new Customer();
         customer.setId(id);
         customer.setName(name);
@@ -143,6 +164,14 @@ public class CustomerDAOImpl implements CustomerDAO {
         customer.setDni(dni);
         customer.setEmail(email);
         customer.setCustomerPhone(phone);
+        customer.setRegistrationDate(registerDate);
+
+        try {
+            customer.setState(CustomerStates.valueOf(state.toUpperCase(Locale.ROOT)));
+        } catch (IllegalArgumentException iae) {
+            customer.setState(CustomerStates.UNKNOWN);
+        }
+
         return customer;
     }
 }

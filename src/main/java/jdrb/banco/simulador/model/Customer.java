@@ -1,5 +1,7 @@
 package jdrb.banco.simulador.model;
 
+import jdrb.banco.simulador.model.enums.CustomerStates;
+
 public class Customer {
 
     private String id;
@@ -8,16 +10,27 @@ public class Customer {
     private String dni;
     private String email;
     private String customerPhone;
+    private Long registrationDate;
+    private CustomerStates state;
 
     public Customer() {}
 
-    public Customer(String id, String name, String lastname, String dni, String email, String customerPhone) {
+    public Customer(String id,
+                    String name,
+                    String lastname,
+                    String dni,
+                    String email,
+                    String customerPhone,
+                    Long registrationDate,
+                    CustomerStates state) {
         this.id = id;
         this.name = name;
         this.lastname = lastname;
         this.dni = dni;
         this.email = email;
         this.customerPhone = customerPhone;
+        this.registrationDate = registrationDate;
+        this.state = state;
     }
 
     public String getId() {
@@ -66,5 +79,21 @@ public class Customer {
 
     public void setCustomerPhone(String customerPhone) {
         this.customerPhone = customerPhone;
+    }
+
+    public Long getRegistrationDate() {
+        return registrationDate;
+    }
+
+    public void setRegistrationDate(Long registrationDate) {
+        this.registrationDate = registrationDate;
+    }
+
+    public CustomerStates getState() {
+        return state;
+    }
+
+    public void setState(CustomerStates state) {
+        this.state = state;
     }
 }
