@@ -1,4 +1,4 @@
-package jdrb.banco.simulador.dao.implementation;
+package jdrb.banco.simulador.dao.implementations;
 
 import jdrb.banco.simulador.dao.TransactionDAO;
 import jdrb.banco.simulador.model.Transaction;
@@ -21,7 +21,7 @@ public class TransactionDAOImpl implements TransactionDAO {
     }
 
     @Override
-    public Boolean insertTransaction(Transaction transaction) {
+    public boolean registerTransaction(Transaction transaction) {
         String sql = "INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?)";
         int transactionInserted = 0;
 

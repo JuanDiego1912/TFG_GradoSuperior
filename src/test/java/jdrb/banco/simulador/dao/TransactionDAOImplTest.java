@@ -1,6 +1,6 @@
 package jdrb.banco.simulador.dao;
 
-import jdrb.banco.simulador.dao.implementation.TransactionDAOImpl;
+import jdrb.banco.simulador.dao.implementations.TransactionDAOImpl;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ public class TransactionDAOImplTest {
         when(ps.executeUpdate()).thenReturn(1);
 
         Transaction tx = crearTransaccionValida();
-        boolean resultado = dao.insertTransaction(tx);
+        boolean resultado = dao.registerTransaction(tx);
 
         assertTrue(resultado);
         verify(ps).executeUpdate();
@@ -46,7 +46,7 @@ public class TransactionDAOImplTest {
         Transaction tx = crearTransaccionValida();
         tx.setId(null);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertTransaction(tx));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.registerTransaction(tx));
         assertTrue(ex.getMessage().contains("must have an id"));
     }
 
@@ -55,7 +55,7 @@ public class TransactionDAOImplTest {
         Transaction tx = crearTransaccionValida();
         tx.setDestinationAccountId(null);
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.insertTransaction(tx));
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.registerTransaction(tx));
         assertTrue(ex.getMessage().contains("destination account"));
     }
 
@@ -127,7 +127,7 @@ public class TransactionDAOImplTest {
         tx.setOriginAccountId("cuenta1");
         tx.setDestinationAccountId("cuenta2");
         tx.setTransactionAmount(1000f);
-        tx.setType(TransactionType.TRANSFERENCIA);
+        tx.setType(TransactionType.TRANSFER);
         tx.setDate(System.currentTimeMillis());
         return tx;
     }
@@ -137,7 +137,7 @@ public class TransactionDAOImplTest {
         when(rs.getString("id_origen")).thenReturn("cuenta1");
         when(rs.getString("id_destino")).thenReturn("cuenta2");
         when(rs.getFloat("monto")).thenReturn(500f);
-        when(rs.getString("tipo")).thenReturn("TRANSFERENCIA");
+        when(rs.getString("tipo")).thenReturn("TRANSFER");
         when(rs.getLong("fecha")).thenReturn(System.currentTimeMillis());
     }
 }

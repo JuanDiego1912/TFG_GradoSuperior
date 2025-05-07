@@ -10,6 +10,16 @@ public class Account {
     private AccountType type;
     private Long creationDate;
 
+    public Account() {}
+
+    public Account(String id, String customerId, float accountBalance, AccountType type, Long creationDate) {
+        this.id = id;
+        this.customerId = customerId;
+        this.accountBalance = accountBalance;
+        this.type = type;
+        this.creationDate = creationDate;
+    }
+
     public String getId() {
         return id;
     }

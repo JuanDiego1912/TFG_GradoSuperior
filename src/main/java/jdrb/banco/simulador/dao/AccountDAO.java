@@ -5,10 +5,10 @@ import jdrb.banco.simulador.model.Account;
 import java.util.List;
 
 public interface AccountDAO {
-    Boolean insertAccount(Account account);
+    boolean registerAccount(Account account);
     Account getAccountById(String id);
     List<Account> getAccountsByClient(String idCliente);
-    Boolean updateAccount(Account cuenta);
-    Boolean deleteAccount(String id);
-    Boolean deleteAccountForClient(String idCliente, String idCuenta);
+    boolean updateAccount(Account cuenta);
+    boolean deleteAccount(String id);
+    boolean deleteAccountForClient(String idCliente, String idCuenta);
 }

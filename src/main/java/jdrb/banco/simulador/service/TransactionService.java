@@ -1,12 +1,12 @@
-package jdrb.banco.simulador.dao;
+package jdrb.banco.simulador.service;
 
 import jdrb.banco.simulador.model.Transaction;
 
 import java.util.Date;
 import java.util.List;
 
-public interface TransactionDAO {
-    boolean registerTransaction(Transaction transaccion);
+public interface TransactionService {
+    boolean registerTransaction(Transaction transaction);
     Transaction getTransactionById(String id);
     List<Transaction> getTransactionsBySourceAccount(String idCuenta);
     List<Transaction> getTransactionsByDestinationAccount(String idCuenta);

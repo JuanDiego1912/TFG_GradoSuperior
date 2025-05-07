@@ -13,6 +13,17 @@ public class Transaction {
     private TransactionType type;
     private Long date;
 
+    public Transaction() {}
+
+    public Transaction(String id, String originAccountId, String destinationAccountId, float transactionAmount, TransactionType type, Long date) {
+        this.id = id;
+        this.originAccountId = originAccountId;
+        this.destinationAccountId = destinationAccountId;
+        this.transactionAmount = transactionAmount;
+        this.type = type;
+        this.date = date;
+    }
+
     public String getId() {
         return id;
     }

@@ -1,6 +1,6 @@
 package jdrb.banco.simulador.dao;
 
-import jdrb.banco.simulador.dao.implementation.AccountDAOImpl;
+import jdrb.banco.simulador.dao.implementations.AccountDAOImpl;
 import jdrb.banco.simulador.model.Account;
 import jdrb.banco.simulador.model.enums.AccountType;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +34,7 @@ public class AccountDAOImplTest {
         when(ps.executeUpdate()).thenReturn(1);
 
         Account cuenta = crearCuentaValida();
-        boolean resultado = dao.insertAccount(cuenta);
+        boolean resultado = dao.registerAccount(cuenta);
 
         assertTrue(resultado);
     }
@@ -44,7 +44,7 @@ public class AccountDAOImplTest {
         Account cuenta = crearCuentaValida();
         cuenta.setCustomerId(null);
 
-        assertThrows(RuntimeException.class, () -> dao.insertAccount(cuenta));
+        assertThrows(RuntimeException.class, () -> dao.registerAccount(cuenta));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class AccountDAOImplTest {
         Account cuenta = crearCuentaValida();
         cuenta.setAccountBalance(-500f);
 
-        assertThrows(RuntimeException.class, () -> dao.insertAccount(cuenta));
+        assertThrows(RuntimeException.class, () -> dao.registerAccount(cuenta));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class AccountDAOImplTest {
         cuenta.setId("c1");
         cuenta.setCustomerId("cliente1");
         cuenta.setAccountBalance(1000f);
-        cuenta.setAccountType(AccountType.AHORRO);
+        cuenta.setAccountType(AccountType.SAVINGS);
         cuenta.setCreationDate(System.currentTimeMillis());
         return cuenta;
     }
@@ -130,7 +130,7 @@ public class AccountDAOImplTest {
         when(rs.getString("id")).thenReturn("c1");
         when(rs.getString("id_cliente")).thenReturn("cliente1");
         when(rs.getFloat("saldo")).thenReturn(1000f);
-        when(rs.getString("tipo")).thenReturn("AHORRO");
+        when(rs.getString("tipo")).thenReturn("SAVINGS");
         when(rs.getLong("fecha_creacion")).thenReturn(System.currentTimeMillis());
     }
 }

@@ -1,4 +1,4 @@
-package jdrb.banco.simulador.dao.implementation;
+package jdrb.banco.simulador.dao.implementations;
 
 import jdrb.banco.simulador.dao.CustomerDAO;
 import jdrb.banco.simulador.model.Customer;
@@ -16,7 +16,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public Boolean insertCustomer(Customer customer) {
+    public boolean registerCustomer(Customer customer) {
         String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?)";
         int customerInserted = 0;
 
@@ -91,7 +91,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public Boolean updateCustomer(Customer customer) {
+    public boolean updateCustomer(Customer customer) {
         String sql = "UPDATE customers SET nombre = ?, apellido = ?, dni = ?, email = ?, telefono = ? WHERE id = ?";
         int customerUpdated = 0;
 
@@ -114,7 +114,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public Boolean deleteCustomer(String id) {
+    public boolean deleteCustomer(String id) {
         String sql = "DELETE FROM customers WHERE id = ?";
         int customerDeleted = 0;
 

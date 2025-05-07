@@ -1,4 +1,4 @@
-package jdrb.banco.simulador.dao.implementation;
+package jdrb.banco.simulador.dao.implementations;
 
 import jdrb.banco.simulador.dao.AccountDAO;
 import jdrb.banco.simulador.model.Account;
@@ -20,7 +20,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public Boolean insertAccount(Account account) {
+    public boolean registerAccount(Account account) {
         String sql = "INSERT INTO accounts VALUES (?, ?, ?, ?, ?)";
         int accountInserted = 0;
 
@@ -102,7 +102,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public Boolean updateAccount(Account account) {
+    public boolean updateAccount(Account account) {
         String sql = "UPDATE accounts SET saldo = ?, tipo = ? WHERE id = ?";
         int accountUpdated = 0;
 
@@ -122,7 +122,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public Boolean deleteAccount(String id) {
+    public boolean deleteAccount(String id) {
         String sql = "DELETE FROM accounts WHERE id = ?";
         int accountDeleted = 0;
 
@@ -137,7 +137,7 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public Boolean deleteAccountForClient(String customerId, String accountId) {
+    public boolean deleteAccountForClient(String customerId, String accountId) {
         String sql = "DELETE FROM accounts WHERE id_cliente = ? AND id = ?";
         int accountDeleted = 0;
 

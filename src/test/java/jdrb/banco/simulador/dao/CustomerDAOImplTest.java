@@ -1,6 +1,6 @@
 package jdrb.banco.simulador.dao;
 
-import jdrb.banco.simulador.dao.implementation.CustomerDAOImpl;
+import jdrb.banco.simulador.dao.implementations.CustomerDAOImpl;
 import jdrb.banco.simulador.model.Customer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ public class CustomerDAOImplTest {
         when(ps.executeUpdate()).thenReturn(1);
 
         Customer cliente = crearClienteValido();
-        boolean resultado = dao.insertCustomer(cliente);
+        boolean resultado = dao.registerCustomer(cliente);
 
         assertTrue(resultado);
     }

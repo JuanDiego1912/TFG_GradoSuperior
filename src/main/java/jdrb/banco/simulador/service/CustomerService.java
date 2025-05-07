@@ -1,13 +1,13 @@
-package jdrb.banco.simulador.dao;
+package jdrb.banco.simulador.service;
 
 import jdrb.banco.simulador.model.Customer;
 
 import java.util.List;
 
-public interface CustomerDAO {
-    boolean registerCustomer(Customer cliente);
+public interface CustomerService {
+    boolean registerCustomer(Customer customer);
     Customer getCustomerById(String id);
     List<Customer> getAllCustomers();
-    boolean updateCustomer(Customer cliente);
+    boolean updateCustomer(Customer customer);
     boolean deleteCustomer(String id);
 }
