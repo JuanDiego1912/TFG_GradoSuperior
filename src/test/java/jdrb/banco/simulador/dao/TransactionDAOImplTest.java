@@ -2,6 +2,7 @@ package jdrb.banco.simulador.dao;
 
 import jdrb.banco.simulador.dao.implementations.TransactionDAOImpl;
 import jdrb.banco.simulador.model.Transaction;
+import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,19 +32,19 @@ public class TransactionDAOImplTest {
     }
 
     @Test
-    public void testInsertarTransaccion_Exito() throws SQLException {
+    public void testInsertTransaction_Success() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Transaction tx = crearTransaccionValida();
-        boolean resultado = dao.registerTransaction(tx);
+        Transaction tx = createValidTransaction();
+        boolean result = dao.registerTransaction(tx);
 
-        assertTrue(resultado);
+        assertTrue(result);
         verify(ps).executeUpdate();
     }
 
     @Test
-    public void testInsertarTransaccion_IdNulo() {
-        Transaction tx = crearTransaccionValida();
+    public void testInsertTransaction_NullId() {
+        Transaction tx = createValidTransaction();
         tx.setId(null);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.registerTransaction(tx));
@@ -51,8 +52,8 @@ public class TransactionDAOImplTest {
     }
 
     @Test
-    public void testInsertarTransaccion_CuentaDestinoNula() {
-        Transaction tx = crearTransaccionValida();
+    public void testInsertTransaction_NullDestinationAccount() {
+        Transaction tx = createValidTransaction();
         tx.setDestinationAccountId(null);
 
         RuntimeException ex = assertThrows(RuntimeException.class, () -> dao.registerTransaction(tx));
@@ -60,10 +61,10 @@ public class TransactionDAOImplTest {
     }
 
     @Test
-    public void testObtenerTransaccionPorId_Encontrada() throws SQLException {
+    public void testGetTransactionById_Found() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true);
-        mockResultSetTransaccion(rs);
+        mockTransactionResultSet(rs);
 
         Transaction tx = dao.getTransactionById("tx123");
 
@@ -73,71 +74,74 @@ public class TransactionDAOImplTest {
     }
 
     @Test
-    public void testObtenerTransaccionPorId_NoEncontrada() throws SQLException {
+    public void testGetTransactionById_NotFound() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
 
-        Transaction tx = dao.getTransactionById("noexiste");
+        Transaction tx = dao.getTransactionById("notexists");
         assertNull(tx);
     }
 
     @Test
-    public void testObtenerTransaccionesPorCuentaOrigen() throws SQLException {
+    public void testGetTransactionsBySourceAccount() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
-        mockResultSetTransaccion(rs);
+        mockTransactionResultSet(rs);
 
-        List<Transaction> lista = dao.getTransactionsBySourceAccount("cuenta1");
+        List<Transaction> list = dao.getTransactionsBySourceAccount("acc1");
 
-        assertEquals(1, lista.size());
-        assertEquals("cuenta1", lista.get(0).getOriginAccountId());
+        assertEquals(1, list.size());
+        assertEquals("acc1", list.get(0).getOriginAccountId());
     }
 
     @Test
-    public void testObtenerTransaccionesPorCuentaDestino() throws SQLException {
+    public void testGetTransactionsByDestinationAccount() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
-        mockResultSetTransaccion(rs);
+        mockTransactionResultSet(rs);
 
-        List<Transaction> lista = dao.getTransactionsByDestinationAccount("cuenta2");
+        List<Transaction> list = dao.getTransactionsByDestinationAccount("acc2");
 
-        assertEquals(1, lista.size());
-        assertEquals("cuenta2", lista.get(0).getDestinationAccountId());
+        assertEquals(1, list.size());
+        assertEquals("acc2", list.get(0).getDestinationAccountId());
     }
 
     @Test
-    public void testObtenerTransaccionesEntreFechas() throws SQLException {
+    public void testGetTransactionsBetweenDates() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
-        mockResultSetTransaccion(rs);
+        mockTransactionResultSet(rs);
 
-        Date desde = new Date(System.currentTimeMillis() - 100000);
-        Date hasta = new Date();
+        Date from = new Date(System.currentTimeMillis() - 100000);
+        Date to = new Date();
 
-        List<Transaction> lista = dao.getTransactionsBetweenDates("cuenta1", desde, hasta);
+        List<Transaction> list = dao.getTransactionsBetweenDates("acc1", from, to);
 
-        assertEquals(1, lista.size());
-        assertEquals("cuenta1", lista.get(0).getOriginAccountId());
+        assertEquals(1, list.size());
+        assertEquals("acc1", list.get(0).getOriginAccountId());
     }
 
-    // Utilidades de test
-    private Transaction crearTransaccionValida() {
+    // ---------- Helper methods ----------
+
+    private Transaction createValidTransaction() {
         Transaction tx = new Transaction();
         tx.setId("tx123");
-        tx.setOriginAccountId("cuenta1");
-        tx.setDestinationAccountId("cuenta2");
+        tx.setOriginAccountId("acc1");
+        tx.setDestinationAccountId("acc2");
         tx.setTransactionAmount(1000f);
         tx.setType(TransactionType.TRANSFER);
         tx.setDate(System.currentTimeMillis());
+        tx.setState(TransactionStates.COMPLETED);
         return tx;
     }
 
-    private void mockResultSetTransaccion(ResultSet rs) throws SQLException {
+    private void mockTransactionResultSet(ResultSet rs) throws SQLException {
         when(rs.getString("id")).thenReturn("tx123");
-        when(rs.getString("id_origen")).thenReturn("cuenta1");
-        when(rs.getString("id_destino")).thenReturn("cuenta2");
+        when(rs.getString("id_origen")).thenReturn("acc1");
+        when(rs.getString("id_destino")).thenReturn("acc2");
         when(rs.getFloat("monto")).thenReturn(500f);
         when(rs.getString("tipo")).thenReturn("TRANSFER");
         when(rs.getLong("fecha")).thenReturn(System.currentTimeMillis());
+        when(rs.getString("estado")).thenReturn("COMPLETED");
     }
 }

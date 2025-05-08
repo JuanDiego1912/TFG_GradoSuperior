@@ -8,6 +8,7 @@ import jdrb.banco.simulador.model.Customer;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.model.enums.AccountType;
 import jdrb.banco.simulador.model.enums.CustomerStates;
+import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -67,7 +68,7 @@ public class ServiceImplTest {
     void updateAccount_invalidAccount_shouldThrow() {
         Account acc = new Account(null, null, 0, null, 0L);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.updateAccount(acc));
-        assertEquals("Invalid account data", ex.getMessage());
+        assertEquals("Account or account ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
@@ -79,7 +80,7 @@ public class ServiceImplTest {
     @Test
     void deleteAccountForClient_nullIds_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccountForClient(null, null));
-        assertEquals("Client ID and Account ID cannot be null or empty", ex.getMessage());
+        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
@@ -108,7 +109,7 @@ public class ServiceImplTest {
     void registerCustomer_invalid_shouldThrow() {
         Customer c = new Customer(null, null, null, null, null, null, 0L, null);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
-        assertEquals("Invalid customer data", ex.getMessage());
+        assertEquals("Customer or customer ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
@@ -129,7 +130,14 @@ public class ServiceImplTest {
 
     @Test
     void registerTransaction_valid_shouldSucceed() {
-        Transaction t = new Transaction("T1", "A1", "A2", 500f, TransactionType.TRANSFER, System.currentTimeMillis());
+        Transaction t = new Transaction(
+                "T1",
+                "A1",
+                "A2",
+                500f,
+                TransactionType.TRANSFER,
+                System.currentTimeMillis(),
+                TransactionStates.COMPLETED);
         when(transactionDAO.registerTransaction(t)).thenReturn(true);
 
         assertTrue(transactionService.registerTransaction(t));
@@ -138,10 +146,17 @@ public class ServiceImplTest {
 
     @Test
     void registerTransaction_negativeAmount_shouldThrow() {
-        Transaction t = new Transaction("T1", "A1", "A2", -5f, TransactionType.TRANSFER, System.currentTimeMillis());
+        Transaction t = new Transaction(
+                "T1",
+                "A1",
+                "A2",
+                -5f,
+                TransactionType.TRANSFER,
+                System.currentTimeMillis(),
+                TransactionStates.PEND);
 
         Exception ex = assertThrows(RuntimeException.class, () -> transactionService.registerTransaction(t));
-        assertEquals("Amount must be positive", ex.getMessage());
+        assertEquals("Transaction amount must be greater than 0", ex.getMessage());
     }
 
     @Test
@@ -152,7 +167,7 @@ public class ServiceImplTest {
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
                 transactionService.getTransactionsBetweenDates("A1", now, before)
         );
-        assertEquals("Start date must be before end date", ex.getMessage());
+        assertEquals("From date cannot be after to date", ex.getMessage());
     }
 
     @Test

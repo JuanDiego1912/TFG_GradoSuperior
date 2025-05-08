@@ -2,6 +2,7 @@ package jdrb.banco.simulador.dao.implementations;
 
 import jdrb.banco.simulador.dao.TransactionDAO;
 import jdrb.banco.simulador.model.Transaction;
+import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
 
 import java.sql.Connection;
@@ -22,7 +23,7 @@ public class TransactionDAOImpl implements TransactionDAO {
 
     @Override
     public boolean registerTransaction(Transaction transaction) {
-        String sql = "INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?)";
         int transactionInserted = 0;
 
         if (transaction.getId() == null) {
@@ -34,6 +35,9 @@ public class TransactionDAOImpl implements TransactionDAO {
         if (transaction.getTransactionAmount() < 0.0) {
             throw new RuntimeException("Error inserting transaction. Transaction amount must be positive");
         }
+        if (transaction.getState() == null) {
+            throw new RuntimeException("Error inserting transaction. Transaction must have a state");
+        }
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -43,6 +47,7 @@ public class TransactionDAOImpl implements TransactionDAO {
             ps.setFloat(4, transaction.getTransactionAmount());
             ps.setString(5, transaction.getType().name());
             ps.setLong(6, transaction.getDate());
+            ps.setString(7, transaction.getState().name());
 
             transactionInserted = ps.executeUpdate();
 
@@ -68,7 +73,8 @@ public class TransactionDAOImpl implements TransactionDAO {
                         rs.getString("id_destino"),
                         rs.getFloat("monto"),
                         rs.getString("tipo"),
-                        rs.getLong("fecha")
+                        rs.getLong("fecha"),
+                        rs.getString("estado")
                 );
             }
         } catch (SQLException sqlEx) {
@@ -112,7 +118,8 @@ public class TransactionDAOImpl implements TransactionDAO {
                         rs.getString("id_destino"),
                         rs.getFloat("monto"),
                         rs.getString("tipo"),
-                        rs.getLong("fecha")
+                        rs.getLong("fecha"),
+                        rs.getString("estado")
                 );
                 transactions.add(transaction);
             }
@@ -140,7 +147,8 @@ public class TransactionDAOImpl implements TransactionDAO {
                         rs.getString("id_destino"),
                         rs.getFloat("monto"),
                         rs.getString("tipo"),
-                        rs.getLong("fecha")
+                        rs.getLong("fecha"),
+                        rs.getString("estado")
                 );
                 transactions.add(transaction);
             }
@@ -156,12 +164,19 @@ public class TransactionDAOImpl implements TransactionDAO {
                                                   String destinationId,
                                                   float amount,
                                                   String type,
-                                                  Long date) {
+                                                  Long date,
+                                                  String state) {
         Transaction transaction = new Transaction();
         transaction.setId(id);
         transaction.setOriginAccountId(originId);
         transaction.setDestinationAccountId(destinationId);
         transaction.setTransactionAmount(amount);
+
+        try {
+            transaction.setState(TransactionStates.valueOf(state.toUpperCase(java.util.Locale.ROOT)));
+        } catch (IllegalArgumentException e) {
+            transaction.setState(TransactionStates.UNKNOWN);
+        }
 
         try {
             transaction.setType(TransactionType.valueOf(type));

@@ -22,20 +22,6 @@ public class Transaction {
                        String destinationAccountId,
                        float transactionAmount,
                        TransactionType type,
-                       Long date) {
-        this.id = id;
-        this.originAccountId = originAccountId;
-        this.destinationAccountId = destinationAccountId;
-        this.transactionAmount = transactionAmount;
-        this.type = type;
-        this.date = date;
-    }
-
-    public Transaction(String id,
-                       String originAccountId,
-                       String destinationAccountId,
-                       float transactionAmount,
-                       TransactionType type,
                        Long date,
                        TransactionStates state) {
         this.id = id;
