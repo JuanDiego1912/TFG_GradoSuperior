@@ -6,16 +6,20 @@ public class Account {
 
     private String id;
     private String customerId;
-    private float accountBalance;
+    private float balance;
     private AccountType type;
-    private Long creationDate;
+    private long creationDate;
 
     public Account() {}
 
-    public Account(String id, String customerId, float accountBalance, AccountType type, Long creationDate) {
+    public Account(String id,
+                   String customerId,
+                   float accountBalance,
+                   AccountType type,
+                   long creationDate) {
         this.id = id;
         this.customerId = customerId;
-        this.accountBalance = accountBalance;
+        this.balance = accountBalance;
         this.type = type;
         this.creationDate = creationDate;
     }
@@ -36,12 +40,12 @@ public class Account {
         this.customerId = customerId;
     }
 
-    public float getAccountBalance() {
-        return accountBalance;
+    public float getBalance() {
+        return balance;
     }
 
-    public void setAccountBalance(float accountBalance) {
-        this.accountBalance = accountBalance;
+    public void setBalance(float balance) {
+        this.balance = balance;
     }
 
     public AccountType getAccountType() {
@@ -52,11 +56,11 @@ public class Account {
         this.type = tipoCuenta;
     }
 
-    public Long getCreationDate() {
+    public long getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(Long creationDate) {
+    public void setCreationDate(long creationDate) {
         this.creationDate = creationDate;
     }
 }

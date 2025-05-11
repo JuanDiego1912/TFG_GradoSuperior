@@ -86,6 +86,44 @@ class CustomerServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> customerService.deleteCustomer(""));
     }
 
+    @Test
+    void registerCustomer_passwordShouldBeEncrypted() {
+        Customer rawCustomer = buildCustomer("enc123");
+        rawCustomer.setPassword("plaintext123");
+
+        when(customerDAO.registerCustomer(any(Customer.class))).thenAnswer(invocation -> {
+            Customer passedCustomer = invocation.getArgument(0);
+
+            assertNotNull(passedCustomer.getPassword());
+            assertNotEquals("plaintext123", passedCustomer.getPassword(), "Password should be encrypted");
+            assertTrue(passedCustomer.getPassword().startsWith("$2a$"), "Encrypted password should start with $2a$");
+
+            return true;
+        });
+
+        assertTrue(customerService.registerCustomer(rawCustomer));
+        verify(customerDAO).registerCustomer(any(Customer.class));
+    }
+
+
+    @Test
+    void updateCustomer_passwordShouldBeEncrypted() {
+        Customer customer = buildCustomer("upEnc");
+        customer.setPassword("myNewPassword");
+
+        when(customerDAO.updateCustomer(any(Customer.class))).thenAnswer(invocation -> {
+            Customer updatedCustomer = invocation.getArgument(0);
+
+            assertNotEquals("myNewPassword", updatedCustomer.getPassword(), "Password should be encrypted");
+            assertTrue(updatedCustomer.getPassword().startsWith("$2a$"), "Encrypted password should start with $2a$");
+
+            return true;
+        });
+
+        assertTrue(customerService.updateCustomer(customer));
+        verify(customerDAO).updateCustomer(any(Customer.class));
+    }
+
     private Customer buildCustomer(String id) {
         Customer c = new Customer();
         c.setId(id);
@@ -93,7 +131,7 @@ class CustomerServiceImplTest {
         c.setLastname("Doe");
         c.setDni("12345678");
         c.setEmail("john.doe@test.com");
-        c.setCustomerPhone("555-1234");
+        c.setPhone("555-1234");
         return c;
     }
 }

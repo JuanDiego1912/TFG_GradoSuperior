@@ -29,13 +29,13 @@ public class AccountDAOImpl implements AccountDAO {
             if (account.getCustomerId() == null) {
                 throw new RuntimeException("Error. Cannot insert an account with a null or empty customer id");
             }
-            if (account.getAccountBalance() < 0.0) {
+            if (account.getBalance() < 0.0) {
                 throw new RuntimeException("Error. Cannot insert an account with a negative balance");
             }
 
             ps.setString(1, account.getId());
             ps.setString(2, account.getCustomerId());
-            ps.setFloat(3, account.getAccountBalance());
+            ps.setFloat(3, account.getBalance());
             ps.setString(4, account.getAccountType().name());
             ps.setLong(5, account.getCreationDate());
             accountInserted = ps.executeUpdate();
@@ -108,7 +108,7 @@ public class AccountDAOImpl implements AccountDAO {
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setFloat(1, account.getAccountBalance());
+            ps.setFloat(1, account.getBalance());
             ps.setString(2, account.getAccountType().name());
             ps.setString(3, account.getId());
 
@@ -162,7 +162,7 @@ public class AccountDAOImpl implements AccountDAO {
         Account account = new Account();
         account.setId(id);
         account.setCustomerId(customerId);
-        account.setAccountBalance(balance);
+        account.setBalance(balance);
 
         try {
             account.setAccountType(AccountType.valueOf(type));

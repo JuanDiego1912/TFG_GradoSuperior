@@ -98,7 +98,7 @@ public class ServiceImplTest {
 
     @Test
     void registerCustomer_valid_shouldSucceed() {
-        Customer c = new Customer("C1", "Juan", "Perez", "12345678", "jperez@example.com", "643461329", System.currentTimeMillis(), CustomerStates.ACTIVE);
+        Customer c = new Customer("C1", "Juan", "Perez", "12345678", "jperez@example.com", "643461329", "123456", System.currentTimeMillis(), CustomerStates.ACTIVE);
         when(customerDAO.registerCustomer(c)).thenReturn(true);
 
         assertTrue(customerService.registerCustomer(c));
@@ -107,7 +107,7 @@ public class ServiceImplTest {
 
     @Test
     void registerCustomer_invalid_shouldThrow() {
-        Customer c = new Customer(null, null, null, null, null, null, 0L, null);
+        Customer c = new Customer(null, null, null, null, null, null, null,0L, null);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
         assertEquals("Customer or customer ID cannot be null or empty", ex.getMessage());
     }

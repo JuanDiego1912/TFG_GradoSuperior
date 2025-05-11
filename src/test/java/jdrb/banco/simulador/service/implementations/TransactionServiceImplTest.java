@@ -90,9 +90,9 @@ class TransactionServiceImplTest {
         t.setId(id);
         t.setOriginAccountId("ACC1");
         t.setDestinationAccountId("ACC2");
-        t.setTransactionAmount(amount);
+        t.setAmount(amount);
         t.setType(TransactionType.TRANSFER);
-        t.setDate(System.currentTimeMillis());
+        t.setTimestamp(System.currentTimeMillis());
         return t;
     }
 }

@@ -9,8 +9,9 @@ public class Customer {
     private String lastname;
     private String dni;
     private String email;
-    private String customerPhone;
-    private Long registrationDate;
+    private String phone;
+    private String password;
+    private long creationDate;
     private CustomerStates state;
 
     public Customer() {}
@@ -21,15 +22,17 @@ public class Customer {
                     String dni,
                     String email,
                     String customerPhone,
-                    Long registrationDate,
+                    String password,
+                    long registrationDate,
                     CustomerStates state) {
         this.id = id;
         this.name = name;
         this.lastname = lastname;
         this.dni = dni;
         this.email = email;
-        this.customerPhone = customerPhone;
-        this.registrationDate = registrationDate;
+        this.phone = customerPhone;
+        this.password = password;
+        this.creationDate = registrationDate;
         this.state = state;
     }
 
@@ -73,20 +76,20 @@ public class Customer {
         this.email = email;
     }
 
-    public String getCustomerPhone() {
-        return customerPhone;
+    public String getPhone() {
+        return phone;
+}
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public void setCustomerPhone(String customerPhone) {
-        this.customerPhone = customerPhone;
+    public long getCreationDate() {
+        return creationDate;
     }
 
-    public Long getRegistrationDate() {
-        return registrationDate;
-    }
-
-    public void setRegistrationDate(Long registrationDate) {
-        this.registrationDate = registrationDate;
+    public void setCreationDate(Long creationDate) {
+        this.creationDate = creationDate;
     }
 
     public CustomerStates getState() {
@@ -95,5 +98,13 @@ public class Customer {
 
     public void setState(CustomerStates state) {
         this.state = state;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

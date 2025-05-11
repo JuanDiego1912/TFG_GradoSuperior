@@ -30,105 +30,105 @@ public class AccountDAOImplTest {
     }
 
     @Test
-    public void testInsertarCuenta_Exitosa() throws SQLException {
+    public void registerAccount_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Account cuenta = crearCuentaValida();
-        boolean resultado = dao.registerAccount(cuenta);
+        Account account = createValidAccount();
+        boolean result = dao.registerAccount(account);
 
-        assertTrue(resultado);
+        assertTrue(result, "Account should be registered successfully");
     }
 
     @Test
-    public void testInsertarCuenta_IdClienteNull() {
-        Account cuenta = crearCuentaValida();
-        cuenta.setCustomerId(null);
+    public void registerAccount_nullCustomerId_throwsException() {
+        Account account = createValidAccount();
+        account.setCustomerId(null);
 
-        assertThrows(RuntimeException.class, () -> dao.registerAccount(cuenta));
+        assertThrows(RuntimeException.class, () -> dao.registerAccount(account), "Should throw for null customer ID");
     }
 
     @Test
-    public void testInsertarCuenta_SaldoNegativo() {
-        Account cuenta = crearCuentaValida();
-        cuenta.setAccountBalance(-500f);
+    public void registerAccount_negativeBalance_throwsException() {
+        Account account = createValidAccount();
+        account.setBalance(-500f);
 
-        assertThrows(RuntimeException.class, () -> dao.registerAccount(cuenta));
+        assertThrows(RuntimeException.class, () -> dao.registerAccount(account), "Should throw for negative balance");
     }
 
     @Test
-    public void testObtenerCuentaPorId_Existe() throws SQLException {
+    public void getAccountById_exists_returnsAccount() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true);
-        mockResultSetCuenta(rs);
+        mockResultSet(rs);
 
-        Account cuenta = dao.getAccountById("c1");
+        Account account = dao.getAccountById("c1");
 
-        assertNotNull(cuenta);
-        assertEquals("c1", cuenta.getId());
+        assertNotNull(account);
+        assertEquals("c1", account.getId());
     }
 
     @Test
-    public void testObtenerCuentaPorId_NoExiste() throws SQLException {
+    public void getAccountById_notExists_returnsNull() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
 
-        Account cuenta = dao.getAccountById("noexiste");
+        Account account = dao.getAccountById("nonexistent");
 
-        assertNull(cuenta);
+        assertNull(account);
     }
 
     @Test
-    public void testObtenerCuentasPorCliente() throws SQLException {
+    public void getAccountsByClient_returnsList() throws SQLException {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(true, false);
-        mockResultSetCuenta(rs);
+        mockResultSet(rs);
 
-        List<Account> cuentas = dao.getAccountsByClient("cliente1");
+        List<Account> accounts = dao.getAccountsByClient("client1");
 
-        assertEquals(1, cuentas.size());
+        assertEquals(1, accounts.size());
     }
 
     @Test
-    public void testActualizarCuenta() throws SQLException {
+    public void updateAccount_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        Account cuenta = crearCuentaValida();
-        boolean actualizado = dao.updateAccount(cuenta);
+        Account account = createValidAccount();
+        boolean updated = dao.updateAccount(account);
 
-        assertTrue(actualizado);
+        assertTrue(updated, "Account should be updated");
     }
 
     @Test
-    public void testEliminarCuenta() throws SQLException {
+    public void deleteAccount_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        boolean eliminado = dao.deleteAccount("c1");
+        boolean deleted = dao.deleteAccount("c1");
 
-        assertTrue(eliminado);
+        assertTrue(deleted, "Account should be deleted");
     }
 
     @Test
-    public void testEliminarCuentaParaCliente() throws SQLException {
+    public void deleteAccountForClient_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        boolean eliminado = dao.deleteAccountForClient("cliente1", "c1");
+        boolean deleted = dao.deleteAccountForClient("client1", "c1");
 
-        assertTrue(eliminado);
+        assertTrue(deleted, "Client's account should be deleted");
     }
 
-    private Account crearCuentaValida() {
-        Account cuenta = new Account();
-        cuenta.setId("c1");
-        cuenta.setCustomerId("cliente1");
-        cuenta.setAccountBalance(1000f);
-        cuenta.setAccountType(AccountType.SAVINGS);
-        cuenta.setCreationDate(System.currentTimeMillis());
-        return cuenta;
+    private Account createValidAccount() {
+        Account account = new Account();
+        account.setId("c1");
+        account.setCustomerId("client1");
+        account.setBalance(1000f);
+        account.setAccountType(AccountType.SAVINGS);
+        account.setCreationDate(System.currentTimeMillis());
+        return account;
     }
 
-    private void mockResultSetCuenta(ResultSet rs) throws SQLException {
+    private void mockResultSet(ResultSet rs) throws SQLException {
         when(rs.getString("id")).thenReturn("c1");
-        when(rs.getString("id_cliente")).thenReturn("cliente1");
+        when(rs.getString("id_cliente")).thenReturn("client1");
         when(rs.getFloat("saldo")).thenReturn(1000f);
         when(rs.getString("tipo")).thenReturn("SAVINGS");
         when(rs.getLong("fecha_creacion")).thenReturn(System.currentTimeMillis());

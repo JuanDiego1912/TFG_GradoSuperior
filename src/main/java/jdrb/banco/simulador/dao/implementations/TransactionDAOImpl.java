@@ -32,7 +32,7 @@ public class TransactionDAOImpl implements TransactionDAO {
         if (transaction.getDestinationAccountId() == null) {
             throw new RuntimeException("Error inserting transaction. Transaction must have a destination account id");
         }
-        if (transaction.getTransactionAmount() < 0.0) {
+        if (transaction.getAmount() < 0.0) {
             throw new RuntimeException("Error inserting transaction. Transaction amount must be positive");
         }
         if (transaction.getState() == null) {
@@ -44,9 +44,9 @@ public class TransactionDAOImpl implements TransactionDAO {
             ps.setString(1, transaction.getId());
             ps.setString(2, transaction.getOriginAccountId());
             ps.setString(3, transaction.getDestinationAccountId());
-            ps.setFloat(4, transaction.getTransactionAmount());
+            ps.setFloat(4, transaction.getAmount());
             ps.setString(5, transaction.getType().name());
-            ps.setLong(6, transaction.getDate());
+            ps.setLong(6, transaction.getTimestamp());
             ps.setString(7, transaction.getState().name());
 
             transactionInserted = ps.executeUpdate();
@@ -170,7 +170,7 @@ public class TransactionDAOImpl implements TransactionDAO {
         transaction.setId(id);
         transaction.setOriginAccountId(originId);
         transaction.setDestinationAccountId(destinationId);
-        transaction.setTransactionAmount(amount);
+        transaction.setAmount(amount);
 
         try {
             transaction.setState(TransactionStates.valueOf(state.toUpperCase(java.util.Locale.ROOT)));
@@ -184,7 +184,7 @@ public class TransactionDAOImpl implements TransactionDAO {
             throw new RuntimeException("Invalid transaction type in database: " + type, e);
         }
 
-        transaction.setDate(date);
+        transaction.setTimestamp(date);
         return transaction;
     }
 }

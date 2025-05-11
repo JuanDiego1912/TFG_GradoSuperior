@@ -128,9 +128,9 @@ public class TransactionDAOImplTest {
         tx.setId("tx123");
         tx.setOriginAccountId("acc1");
         tx.setDestinationAccountId("acc2");
-        tx.setTransactionAmount(1000f);
+        tx.setAmount(1000f);
         tx.setType(TransactionType.TRANSFER);
-        tx.setDate(System.currentTimeMillis());
+        tx.setTimestamp(System.currentTimeMillis());
         tx.setState(TransactionStates.COMPLETED);
         return tx;
     }

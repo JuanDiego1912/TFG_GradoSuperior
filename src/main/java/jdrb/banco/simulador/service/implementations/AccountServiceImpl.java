@@ -47,6 +47,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public boolean deleteAccount(String id) {
         validateId(id, "Account ID");
+
+        Account account = getAccountById(id);
+        if (account == null) {
+            throw new IllegalArgumentException("Account not found with ID: " + id);
+        }
+        if (account.getBalance() > 0.0) {
+            throw new IllegalStateException("Cannot delete account with active balance: " + account.getBalance());
+        }
+
         return accountDAO.deleteAccount(id);
     }
 
@@ -54,6 +63,15 @@ public class AccountServiceImpl implements AccountService {
     public boolean deleteAccountForClient(String customerId, String accountId) {
         validateId(customerId, "Customer ID");
         validateId(accountId, "Account ID");
+
+        Account account = getAccountById(accountId);
+        if (account == null) {
+            throw new IllegalArgumentException("Account not found with ID: " + accountId);
+        }
+        if (account.getBalance() > 0.0) {
+            throw new IllegalStateException("Cannot delete account with active balance: " + account.getBalance());
+        }
+
         return accountDAO.deleteAccountForClient(customerId, accountId);
     }
 

@@ -70,13 +70,14 @@ public class CustomerDAOImplTest {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
         when(resultSet.getString("id")).thenReturn("cli2");
-        when(resultSet.getString("nombre")).thenReturn("Ana");
-        when(resultSet.getString("apellido")).thenReturn("Gomez");
+        when(resultSet.getString("name")).thenReturn("Ana");
+        when(resultSet.getString("last_name")).thenReturn("Gomez");
         when(resultSet.getString("dni")).thenReturn("87654321");
         when(resultSet.getString("email")).thenReturn("ana@example.com");
-        when(resultSet.getString("telefono")).thenReturn("555123456");
-        when(resultSet.getLong("fecha_registro")).thenReturn(System.currentTimeMillis());
-        when(resultSet.getString("estado")).thenReturn("INVALID_STATE");
+        when(resultSet.getString("phone")).thenReturn("555123456");
+        when(resultSet.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(resultSet.getLong("creation_date")).thenReturn(System.currentTimeMillis());
+        when(resultSet.getString("state")).thenReturn("INVALID_STATE");
 
         assertThrows(IllegalArgumentException.class, () -> dao.getCustomerById("cli2"));
     }
@@ -126,20 +127,21 @@ public class CustomerDAOImplTest {
         customer.setLastname("Perez");
         customer.setDni("12345678");
         customer.setEmail("juan@example.com");
-        customer.setCustomerPhone("555000111");
-        customer.setRegistrationDate(System.currentTimeMillis());
+        customer.setPhone("555000111");
+        customer.setCreationDate(System.currentTimeMillis());
         customer.setState(CustomerStates.ACTIVE);
         return customer;
     }
 
     private void mockCustomerResultSet(ResultSet rs) throws SQLException {
         when(rs.getString("id")).thenReturn("cli1");
-        when(rs.getString("nombre")).thenReturn("Juan");
-        when(rs.getString("apellido")).thenReturn("Perez");
+        when(rs.getString("name")).thenReturn("Juan");
+        when(rs.getString("last_name")).thenReturn("Perez");
         when(rs.getString("dni")).thenReturn("12345678");
         when(rs.getString("email")).thenReturn("juan@example.com");
-        when(rs.getString("telefono")).thenReturn("555000111");
-        when(rs.getLong("fecha_registro")).thenReturn(System.currentTimeMillis());
-        when(rs.getString("estado")).thenReturn("ACTIVE");
+        when(rs.getString("phone")).thenReturn("555000111");
+        when(rs.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(rs.getLong("creation_date")).thenReturn(System.currentTimeMillis());
+        when(rs.getString("state")).thenReturn("ACTIVE");
     }
 }

@@ -10,9 +10,9 @@ public class Transaction {
     private String id;
     private String originAccountId;
     private String destinationAccountId;
-    private float transactionAmount;
+    private float amount;
     private TransactionType type;
-    private Long date;
+    private long timestamp;
     private TransactionStates state;
 
     public Transaction() {}
@@ -22,14 +22,14 @@ public class Transaction {
                        String destinationAccountId,
                        float transactionAmount,
                        TransactionType type,
-                       Long date,
+                       long timestamp,
                        TransactionStates state) {
         this.id = id;
         this.originAccountId = originAccountId;
         this.destinationAccountId = destinationAccountId;
-        this.transactionAmount = transactionAmount;
+        this.amount = transactionAmount;
         this.type = type;
-        this.date = date;
+        this.timestamp = timestamp;
         this.state = state;
     }
 
@@ -57,12 +57,12 @@ public class Transaction {
         this.destinationAccountId = destinationAccountId;
     }
 
-    public float getTransactionAmount() {
-        return transactionAmount;
+    public float getAmount() {
+        return amount;
     }
 
-    public void setTransactionAmount(float transactionAmount) {
-        this.transactionAmount = transactionAmount;
+    public void setAmount(float amount) {
+        this.amount = amount;
     }
 
     public TransactionType getType() {
@@ -73,16 +73,16 @@ public class Transaction {
         this.type = type;
     }
 
-    public Long getDate() {
-        return date;
+    public Long getTimestamp() {
+        return timestamp;
     }
 
-    public void setDate(Long date) {
-        this.date = date;
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Date getFechaDate() {
-        return new Date(date);
+        return new Date(timestamp);
     }
 
     public TransactionStates getState() {

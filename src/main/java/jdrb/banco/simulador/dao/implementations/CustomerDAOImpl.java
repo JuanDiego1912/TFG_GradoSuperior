@@ -12,7 +12,7 @@ import java.util.Locale;
 
 public class CustomerDAOImpl implements CustomerDAO {
 
-    private Connection connection;
+    private final Connection connection;
 
     public CustomerDAOImpl(Connection connection) {
         this.connection = connection;
@@ -20,7 +20,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean registerCustomer(Customer customer) {
-        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int customerInserted = 0;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -30,9 +30,11 @@ public class CustomerDAOImpl implements CustomerDAO {
             statement.setString(3, customer.getLastname());
             statement.setString(4, customer.getDni());
             statement.setString(5, customer.getEmail());
-            statement.setString(6, customer.getCustomerPhone());
-            statement.setLong(7, customer.getRegistrationDate());
-            statement.setString(8, customer.getState().name());
+            statement.setString(6, customer.getPhone());
+            statement.setString(7, customer.getPassword());
+            statement.setLong(8, customer.getCreationDate());
+            statement.setString(9, customer.getState().name());
+
             customerInserted = statement.executeUpdate();
 
         } catch (SQLException sqlEx) {
@@ -55,7 +57,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             if (rs.next()) {
 
-                String state = rs.getString("estado");
+                String state = rs.getString("state");
 
                 if (!Arrays.asList(customerStates).contains(state.toUpperCase(Locale.ROOT))) {
                     throw new IllegalArgumentException("Invalid state: " + state);
@@ -63,13 +65,14 @@ public class CustomerDAOImpl implements CustomerDAO {
 
                 return setCustomerData(
                         rs.getString("id"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido"),
+                        rs.getString("name"),
+                        rs.getString("last_name"),
                         rs.getString("dni"),
                         rs.getString("email"),
-                        rs.getString("telefono"),
-                        rs.getLong("fecha_registro"),
-                        rs.getString("estado")
+                        rs.getString("phone"),
+                        rs.getString("password"),
+                        rs.getLong("creation_date"),
+                        rs.getString("state")
                 );
             }
             rs.close();
@@ -91,13 +94,14 @@ public class CustomerDAOImpl implements CustomerDAO {
             while (rs.next()) {
                 Customer customer = setCustomerData(
                         rs.getString("id"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido"),
+                        rs.getString("name"),
+                        rs.getString("last_name"),
                         rs.getString("dni"),
                         rs.getString("email"),
-                        rs.getString("telefono"),
-                        rs.getLong("fecha_registro"),
-                        rs.getString("estado")
+                        rs.getString("phone"),
+                        rs.getString("password"),
+                        rs.getLong("creation_date"),
+                        rs.getString("state")
                 );
                 customers.add(customer);
             }
@@ -110,7 +114,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET nombre = ?, apellido = ?, dni = ?, email = ?, telefono = ?, estado = ? WHERE id = ?";
+        String sql = "UPDATE customers SET name = ?, last_name = ?, dni = ?, email = ?, phone = ?, password = ?, state = ? WHERE id = ?";
         int customerUpdated = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -119,9 +123,10 @@ public class CustomerDAOImpl implements CustomerDAO {
             ps.setString(2, customer.getLastname());
             ps.setString(3, customer.getDni());
             ps.setString(4, customer.getEmail());
-            ps.setString(5, customer.getCustomerPhone());
-            ps.setString(6, customer.getState().name());
-            ps.setString(7, customer.getId());
+            ps.setString(5, customer.getPhone());
+            ps.setString(6, customer.getPassword());
+            ps.setString(7, customer.getState().name());
+            ps.setString(8, customer.getId());
 
             customerUpdated = ps.executeUpdate();
 
@@ -149,13 +154,45 @@ public class CustomerDAOImpl implements CustomerDAO {
         return customerDeleted > 0;
     }
 
+    @Override
+    public Customer findByEmail(String email) {
+        String sql = "SELECT * FROM customers WHERE email = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, email);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return setCustomerData(
+                        rs.getString("id"),
+                        rs.getString("name"),
+                        rs.getString("last_name"),
+                        rs.getString("dni"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("password"),
+                        rs.getLong("creation_date"),
+                        rs.getString("state")
+                );
+            }
+
+        } catch (SQLException sqlEx) {
+            throw new RuntimeException("Error getting customer with email " + email + " from database", sqlEx);
+        }
+
+        return null;
+    }
+
     private Customer setCustomerData(String id,
                                    String name,
                                    String lastname,
                                    String dni,
                                    String email,
                                    String phone,
-                                   Long registerDate,
+                                   String password,
+                                   long registerDate,
                                    String state) {
         Customer customer = new Customer();
         customer.setId(id);
@@ -163,8 +200,9 @@ public class CustomerDAOImpl implements CustomerDAO {
         customer.setLastname(lastname);
         customer.setDni(dni);
         customer.setEmail(email);
-        customer.setCustomerPhone(phone);
-        customer.setRegistrationDate(registerDate);
+        customer.setPhone(phone);
+        customer.setCreationDate(registerDate);
+        customer.setPassword(password);
 
         try {
             customer.setState(CustomerStates.valueOf(state.toUpperCase(Locale.ROOT)));

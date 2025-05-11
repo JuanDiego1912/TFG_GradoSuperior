@@ -23,7 +23,7 @@ public class TransactionServiceImpl implements TransactionService {
         validateId(transaction.getId(), "Transaction ID");
         validateId(transaction.getOriginAccountId(), "Transaction origin account ID");
         validateId(transaction.getDestinationAccountId(), "Transaction destination account ID");
-        if (transaction.getTransactionAmount() < 0.0) {
+        if (transaction.getAmount() < 0.0) {
             throw new RuntimeException("Transaction amount must be greater than 0");
         }
         return transactionDAO.registerTransaction(transaction);
