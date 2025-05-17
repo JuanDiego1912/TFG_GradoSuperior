@@ -38,7 +38,7 @@ public class ServiceImplTest {
 
         accountService = new AccountServiceImpl(accountDAO);
         customerService = new CustomerServiceImpl(customerDAO);
-        transactionService = new TransactionServiceImpl(transactionDAO);
+        transactionService = new TransactionServiceImpl(transactionDAO, accountDAO);
     }
 
     // ----------------------- AccountService Tests -------------------------
@@ -109,7 +109,7 @@ public class ServiceImplTest {
     void registerCustomer_invalid_shouldThrow() {
         Customer c = new Customer(null, null, null, null, null, null, null,0L, null);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
-        assertEquals("Customer or customer ID cannot be null or empty", ex.getMessage());
+        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
@@ -138,6 +138,10 @@ public class ServiceImplTest {
                 TransactionType.TRANSFER,
                 System.currentTimeMillis(),
                 TransactionStates.COMPLETED);
+
+        Account originAccount = new Account("A1", "C1", 1000f, AccountType.SAVINGS, System.currentTimeMillis());
+        when(accountDAO.getAccountById("A1")).thenReturn(originAccount);
+
         when(transactionDAO.registerTransaction(t)).thenReturn(true);
 
         assertTrue(transactionService.registerTransaction(t));

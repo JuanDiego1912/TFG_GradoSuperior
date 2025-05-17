@@ -3,6 +3,7 @@ package jdrb.banco.simulador.dao.implementations;
 import jdrb.banco.simulador.dao.AccountDAO;
 import jdrb.banco.simulador.model.Account;
 import jdrb.banco.simulador.model.enums.AccountType;
+import jdrb.banco.simulador.utils.MappingDBTables.AccountTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,7 +22,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public boolean registerAccount(Account account) {
-        String sql = "INSERT INTO accounts VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + AccountTable.TABLE_NAME + " VALUES (?, ?, ?, ?, ?)";
         int accountInserted = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -49,7 +50,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public Account getAccountById(String id) {
-        String sql = "SELECT * FROM accounts WHERE id = ?";
+        String sql = "SELECT * FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.ID + " = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -57,11 +58,11 @@ public class AccountDAOImpl implements AccountDAO {
 
             if (rs.next()) {
                 return mapAccountFromResultSet(
-                        rs.getString("id"),
-                        rs.getString("id_cliente"),
-                        rs.getFloat("saldo"),
-                        rs.getString("tipo"),
-                        rs.getLong("fecha_creacion")
+                        rs.getString(AccountTable.ID),
+                        rs.getString(AccountTable.CUSTOMER_ID),
+                        rs.getFloat(AccountTable.BALANCE),
+                        rs.getString(AccountTable.TYPE),
+                        rs.getLong(AccountTable.CREATION_DATE)
                 );
             }
             rs.close();
@@ -75,7 +76,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public List<Account> getAccountsByClient(String customerId) {
-        String sql = "SELECT * FROM accounts WHERE id_cliente = ?";
+        String sql = "SELECT * FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.CUSTOMER_ID + " = ?";
         List<Account> accounts = null;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -86,11 +87,11 @@ public class AccountDAOImpl implements AccountDAO {
             accounts = new LinkedList<>();
             while (rs.next()) {
                 Account account = mapAccountFromResultSet(
-                        rs.getString("id"),
-                        rs.getString("id_cliente"),
-                        rs.getFloat("saldo"),
-                        rs.getString("tipo"),
-                        rs.getLong("fecha_creacion")
+                        rs.getString(AccountTable.ID),
+                        rs.getString(AccountTable.CUSTOMER_ID),
+                        rs.getFloat(AccountTable.BALANCE),
+                        rs.getString(AccountTable.TYPE),
+                        rs.getLong(AccountTable.CREATION_DATE)
                 );
                 accounts.add(account);
             }
@@ -103,7 +104,9 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public boolean updateAccount(Account account) {
-        String sql = "UPDATE accounts SET saldo = ?, tipo = ? WHERE id = ?";
+        String sql = "UPDATE " + AccountTable.TABLE_NAME + " SET "
+                + AccountTable.BALANCE + " = ?, "
+                + AccountTable.TYPE + " = ? WHERE " + AccountTable.ID + " = ?";
         int accountUpdated = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -123,7 +126,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public boolean deleteAccount(String id) {
-        String sql = "DELETE FROM accounts WHERE id = ?";
+        String sql = "DELETE FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.ID + " = ?";
         int accountDeleted = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -138,7 +141,7 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public boolean deleteAccountForClient(String customerId, String accountId) {
-        String sql = "DELETE FROM accounts WHERE id_cliente = ? AND id = ?";
+        String sql = "DELETE FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.CUSTOMER_ID + " = ? AND " + AccountTable.ID + " = ?";
         int accountDeleted = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {

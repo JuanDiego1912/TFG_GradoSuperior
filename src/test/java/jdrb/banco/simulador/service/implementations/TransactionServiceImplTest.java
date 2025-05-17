@@ -1,7 +1,10 @@
 package jdrb.banco.simulador.service.implementations;
 
+import jdrb.banco.simulador.dao.AccountDAO;
 import jdrb.banco.simulador.dao.TransactionDAO;
+import jdrb.banco.simulador.model.Account;
 import jdrb.banco.simulador.model.Transaction;
+import jdrb.banco.simulador.model.enums.AccountType;
 import jdrb.banco.simulador.model.enums.TransactionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,20 +19,28 @@ import static org.mockito.Mockito.*;
 class TransactionServiceImplTest {
 
     private TransactionDAO transactionDAO;
+    private AccountDAO accountDAO;
     private TransactionServiceImpl transactionService;
 
     @BeforeEach
     void setUp() {
         transactionDAO = mock(TransactionDAO.class);
-        transactionService = new TransactionServiceImpl(transactionDAO);
+        accountDAO = mock(AccountDAO.class);
+        transactionService = new TransactionServiceImpl(transactionDAO,accountDAO);
     }
 
     @Test
     void registerTransaction_valid_returnsTrue() {
         Transaction t = buildTransaction("T1", 100.0f);
+
+        when(accountDAO.getAccountById("ACC1")).thenReturn(
+                new Account("ACC1", "C1", 1000f, AccountType.SAVINGS, System.currentTimeMillis()));
+
         when(transactionDAO.registerTransaction(t)).thenReturn(true);
+
         assertTrue(transactionService.registerTransaction(t));
     }
+
 
     @Test
     void registerTransaction_null_throwsException() {

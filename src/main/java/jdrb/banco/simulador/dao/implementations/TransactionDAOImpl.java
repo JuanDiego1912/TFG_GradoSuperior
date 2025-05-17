@@ -4,6 +4,7 @@ import jdrb.banco.simulador.dao.TransactionDAO;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
+import jdrb.banco.simulador.utils.MappingDBTables.TransactionsTable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +24,7 @@ public class TransactionDAOImpl implements TransactionDAO {
 
     @Override
     public boolean registerTransaction(Transaction transaction) {
-        String sql = "INSERT INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + TransactionsTable.TABLE_NAME + " VALUES (?, ?, ?, ?, ?, ?, ?)";
         int transactionInserted = 0;
 
         if (transaction.getId() == null) {
@@ -60,7 +61,7 @@ public class TransactionDAOImpl implements TransactionDAO {
 
     @Override
     public Transaction getTransactionById(String id) {
-        String sql = "SELECT * FROM transactions WHERE id = ?";
+        String sql = "SELECT * FROM " + TransactionsTable.TABLE_NAME + " WHERE " + TransactionsTable.ID + " = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, id);
@@ -68,13 +69,13 @@ public class TransactionDAOImpl implements TransactionDAO {
 
             if (rs.next()) {
                 return mapTransactionFromResultSet(
-                        rs.getString("id"),
-                        rs.getString("id_origen"),
-                        rs.getString("id_destino"),
-                        rs.getFloat("monto"),
-                        rs.getString("tipo"),
-                        rs.getLong("fecha"),
-                        rs.getString("estado")
+                        rs.getString(TransactionsTable.ID),
+                        rs.getString(TransactionsTable.ORIGIN_ACCOUNT_ID),
+                        rs.getString(TransactionsTable.DESTINATION_ACCOUNT_ID),
+                        rs.getFloat(TransactionsTable.AMOUNT),
+                        rs.getString(TransactionsTable.TYPE),
+                        rs.getLong(TransactionsTable.TIMESTAMP),
+                        rs.getString(TransactionsTable.STATE)
                 );
             }
         } catch (SQLException sqlEx) {
@@ -86,21 +87,23 @@ public class TransactionDAOImpl implements TransactionDAO {
 
     @Override
     public List<Transaction> getTransactionsBySourceAccount(String accountId) {
-        String sql = "SELECT * FROM transactions WHERE id_origen = ?";
+        String sql = "SELECT * FROM " + TransactionsTable.TABLE_NAME + " WHERE " + TransactionsTable.ORIGIN_ACCOUNT_ID + " = ?";
 
         return executeQueryByAccount(sql, accountId);
     }
 
     @Override
     public List<Transaction> getTransactionsByDestinationAccount(String accountId) {
-        String sql = "SELECT * FROM transactions WHERE id_destino = ?";
+        String sql = "SELECT * FROM " + TransactionsTable.TABLE_NAME + " WHERE " + TransactionsTable.DESTINATION_ACCOUNT_ID + " = ?";
 
         return executeQueryByAccount(sql, accountId);
     }
 
     @Override
     public List<Transaction> getTransactionsBetweenDates(String accountId, Date from, Date to) {
-        String sql = "SELECT * FROM transactions WHERE (id_origen = ? OR id_destino = ?) AND fecha >= ? AND fecha <= ?";
+        String sql = "SELECT * FROM " + TransactionsTable.TABLE_NAME + " WHERE (" + TransactionsTable.ORIGIN_ACCOUNT_ID + " = ? OR "
+                + TransactionsTable.DESTINATION_ACCOUNT_ID + " = ?) AND "
+                + TransactionsTable.TIMESTAMP + " >= ? AND " + TransactionsTable.TIMESTAMP + " <= ?";
         List<Transaction> transactions = new LinkedList<>();
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -113,13 +116,13 @@ public class TransactionDAOImpl implements TransactionDAO {
 
             while (rs.next()) {
                 Transaction transaction = mapTransactionFromResultSet(
-                        rs.getString("id"),
-                        rs.getString("id_origen"),
-                        rs.getString("id_destino"),
-                        rs.getFloat("monto"),
-                        rs.getString("tipo"),
-                        rs.getLong("fecha"),
-                        rs.getString("estado")
+                        rs.getString(TransactionsTable.ID),
+                        rs.getString(TransactionsTable.ORIGIN_ACCOUNT_ID),
+                        rs.getString(TransactionsTable.DESTINATION_ACCOUNT_ID),
+                        rs.getFloat(TransactionsTable.AMOUNT),
+                        rs.getString(TransactionsTable.TYPE),
+                        rs.getLong(TransactionsTable.TIMESTAMP),
+                        rs.getString(TransactionsTable.STATE)
                 );
                 transactions.add(transaction);
             }
@@ -141,14 +144,14 @@ public class TransactionDAOImpl implements TransactionDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Transaction transaction = mapTransactionFromResultSet(
-                        rs.getString("id"),
-                        rs.getString("id_origen"),
-                        rs.getString("id_destino"),
-                        rs.getFloat("monto"),
-                        rs.getString("tipo"),
-                        rs.getLong("fecha"),
-                        rs.getString("estado")
+                Transaction transaction =mapTransactionFromResultSet(
+                        rs.getString(TransactionsTable.ID),
+                        rs.getString(TransactionsTable.ORIGIN_ACCOUNT_ID),
+                        rs.getString(TransactionsTable.DESTINATION_ACCOUNT_ID),
+                        rs.getFloat(TransactionsTable.AMOUNT),
+                        rs.getString(TransactionsTable.TYPE),
+                        rs.getLong(TransactionsTable.TIMESTAMP),
+                        rs.getString(TransactionsTable.STATE)
                 );
                 transactions.add(transaction);
             }

@@ -3,6 +3,7 @@ package jdrb.banco.simulador.dao;
 import jdrb.banco.simulador.dao.implementations.AccountDAOImpl;
 import jdrb.banco.simulador.model.Account;
 import jdrb.banco.simulador.model.enums.AccountType;
+import jdrb.banco.simulador.utils.MappingDBTables.AccountTable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -127,10 +128,10 @@ public class AccountDAOImplTest {
     }
 
     private void mockResultSet(ResultSet rs) throws SQLException {
-        when(rs.getString("id")).thenReturn("c1");
-        when(rs.getString("id_cliente")).thenReturn("client1");
-        when(rs.getFloat("saldo")).thenReturn(1000f);
-        when(rs.getString("tipo")).thenReturn("SAVINGS");
-        when(rs.getLong("fecha_creacion")).thenReturn(System.currentTimeMillis());
+        when(rs.getString(AccountTable.ID)).thenReturn("c1");
+        when(rs.getString(AccountTable.CUSTOMER_ID)).thenReturn("client1");
+        when(rs.getFloat(AccountTable.BALANCE)).thenReturn(1000f);
+        when(rs.getString(AccountTable.TYPE)).thenReturn("SAVINGS");
+        when(rs.getLong(AccountTable.CREATION_DATE)).thenReturn(System.currentTimeMillis());
     }
 }

@@ -4,6 +4,7 @@ import jdrb.banco.simulador.dao.implementations.TransactionDAOImpl;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
+import jdrb.banco.simulador.utils.MappingDBTables.TransactionsTable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -136,12 +137,12 @@ public class TransactionDAOImplTest {
     }
 
     private void mockTransactionResultSet(ResultSet rs) throws SQLException {
-        when(rs.getString("id")).thenReturn("tx123");
-        when(rs.getString("id_origen")).thenReturn("acc1");
-        when(rs.getString("id_destino")).thenReturn("acc2");
-        when(rs.getFloat("monto")).thenReturn(500f);
-        when(rs.getString("tipo")).thenReturn("TRANSFER");
-        when(rs.getLong("fecha")).thenReturn(System.currentTimeMillis());
-        when(rs.getString("estado")).thenReturn("COMPLETED");
+        when(rs.getString(TransactionsTable.ID)).thenReturn("tx123");
+        when(rs.getString(TransactionsTable.ORIGIN_ACCOUNT_ID)).thenReturn("acc1");
+        when(rs.getString(TransactionsTable.DESTINATION_ACCOUNT_ID)).thenReturn("acc2");
+        when(rs.getFloat(TransactionsTable.AMOUNT)).thenReturn(500f);
+        when(rs.getString(TransactionsTable.TYPE)).thenReturn("TRANSFER");
+        when(rs.getLong(TransactionsTable.TABLE_NAME)).thenReturn(System.currentTimeMillis());
+        when(rs.getString(TransactionsTable.STATE)).thenReturn("COMPLETED");
     }
 }

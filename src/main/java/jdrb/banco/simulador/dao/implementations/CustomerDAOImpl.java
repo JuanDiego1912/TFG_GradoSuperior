@@ -3,6 +3,7 @@ package jdrb.banco.simulador.dao.implementations;
 import jdrb.banco.simulador.dao.CustomerDAO;
 import jdrb.banco.simulador.model.Customer;
 import jdrb.banco.simulador.model.enums.CustomerStates;
+import jdrb.banco.simulador.utils.MappingDBTables.CustomersTable;
 
 import java.sql.*;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean registerCustomer(Customer customer) {
-        String sql = "INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO " + CustomersTable.TABLE_NAME + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int customerInserted = 0;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -46,7 +47,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public Customer getCustomerById(String id) {
-        String sql = "SELECT * FROM customers WHERE id = ?";
+        String sql = "SELECT * FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.ID + " = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -57,22 +58,22 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             if (rs.next()) {
 
-                String state = rs.getString("state");
+                String state = rs.getString(CustomersTable.STATE);
 
                 if (!Arrays.asList(customerStates).contains(state.toUpperCase(Locale.ROOT))) {
                     throw new IllegalArgumentException("Invalid state: " + state);
                 }
 
                 return setCustomerData(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getString("last_name"),
-                        rs.getString("dni"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("password"),
-                        rs.getLong("creation_date"),
-                        rs.getString("state")
+                        rs.getString(CustomersTable.ID),
+                        rs.getString(CustomersTable.NAME),
+                        rs.getString(CustomersTable.LAST_NAME),
+                        rs.getString(CustomersTable.DNI),
+                        rs.getString(CustomersTable.EMAIL),
+                        rs.getString(CustomersTable.PHONE),
+                        rs.getString(CustomersTable.PASSWORD),
+                        rs.getLong(CustomersTable.CREATION_DATE),
+                        rs.getString(CustomersTable.STATE)
                 );
             }
             rs.close();
@@ -85,7 +86,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     @Override
     public List<Customer> getAllCustomers() {
 
-        String sql = "SELECT * FROM customers";
+        String sql = "SELECT * FROM " + CustomersTable.TABLE_NAME;
         List<Customer> customers = new LinkedList<>();
 
         try (Statement st = connection.createStatement();
@@ -93,15 +94,15 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             while (rs.next()) {
                 Customer customer = setCustomerData(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getString("last_name"),
-                        rs.getString("dni"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("password"),
-                        rs.getLong("creation_date"),
-                        rs.getString("state")
+                        rs.getString(CustomersTable.ID),
+                        rs.getString(CustomersTable.NAME),
+                        rs.getString(CustomersTable.LAST_NAME),
+                        rs.getString(CustomersTable.DNI),
+                        rs.getString(CustomersTable.EMAIL),
+                        rs.getString(CustomersTable.PHONE),
+                        rs.getString(CustomersTable.PASSWORD),
+                        rs.getLong(CustomersTable.CREATION_DATE),
+                        rs.getString(CustomersTable.STATE)
                 );
                 customers.add(customer);
             }
@@ -114,7 +115,14 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean updateCustomer(Customer customer) {
-        String sql = "UPDATE customers SET name = ?, last_name = ?, dni = ?, email = ?, phone = ?, password = ?, state = ? WHERE id = ?";
+        String sql = "UPDATE " + CustomersTable.TABLE_NAME + " SET "
+                + CustomersTable.NAME + " = ?, "
+                + CustomersTable.LAST_NAME + " = ?, "
+                + CustomersTable.DNI + " = ?, "
+                + CustomersTable.EMAIL + " = ?, "
+                + CustomersTable.PHONE + " = ?, "
+                + CustomersTable.PASSWORD + " = ?, "
+                + CustomersTable.STATE + " = ? WHERE " + CustomersTable.ID + " = ?";
         int customerUpdated = 0;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -139,7 +147,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean deleteCustomer(String id) {
-        String sql = "DELETE FROM customers WHERE id = ?";
+        String sql = "DELETE FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.ID + " = ?";
         int customerDeleted = 0;
 
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -156,7 +164,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public Customer findByEmail(String email) {
-        String sql = "SELECT * FROM customers WHERE email = ?";
+        String sql = "SELECT * FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.EMAIL + " = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -166,15 +174,15 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             if (rs.next()) {
                 return setCustomerData(
-                        rs.getString("id"),
-                        rs.getString("name"),
-                        rs.getString("last_name"),
-                        rs.getString("dni"),
-                        rs.getString("email"),
-                        rs.getString("phone"),
-                        rs.getString("password"),
-                        rs.getLong("creation_date"),
-                        rs.getString("state")
+                        rs.getString(CustomersTable.ID),
+                        rs.getString(CustomersTable.NAME),
+                        rs.getString(CustomersTable.LAST_NAME),
+                        rs.getString(CustomersTable.DNI),
+                        rs.getString(CustomersTable.EMAIL),
+                        rs.getString(CustomersTable.PHONE),
+                        rs.getString(CustomersTable.PASSWORD),
+                        rs.getLong(CustomersTable.CREATION_DATE),
+                        rs.getString(CustomersTable.STATE)
                 );
             }
 

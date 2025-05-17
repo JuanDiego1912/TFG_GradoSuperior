@@ -114,10 +114,45 @@ class AccountServiceImplTest {
         assertTrue(accountService.deleteAccountForClient("C5", "A5"));
     }
 
-
     @Test
     void deleteAccountForClient_nullClient_throwsException() {
         assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccountForClient(null, "A5"));
+    }
+
+    @Test
+    void deleteAccount_accountWithBalance_throwsException() {
+        Account account = buildAccount("A6", "C6");
+        account.setBalance(500.0f); // saldo mayor a 0
+
+        when(accountDAO.getAccountById("A6")).thenReturn(account);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+            accountService.deleteAccount("A6");
+        });
+        assertEquals("Cannot delete account with active balance: 500.0", ex.getMessage());
+    }
+
+    @Test
+    void deleteAccount_accountNotFound_throwsException() {
+        when(accountDAO.getAccountById("A7")).thenReturn(null);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            accountService.deleteAccount("A7");
+        });
+        assertEquals("Account not found with ID: A7", ex.getMessage());
+    }
+
+    @Test
+    void deleteAccountForClient_accountWithBalance_throwsException() {
+        Account account = buildAccount("A8", "C8");
+        account.setBalance(100.0f);
+
+        when(accountDAO.getAccountById("A8")).thenReturn(account);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> {
+            accountService.deleteAccountForClient("C8", "A8");
+        });
+        assertEquals("Cannot delete account with active balance: 100.0", ex.getMessage());
     }
 
     private Account buildAccount(String id, String customerId) {
