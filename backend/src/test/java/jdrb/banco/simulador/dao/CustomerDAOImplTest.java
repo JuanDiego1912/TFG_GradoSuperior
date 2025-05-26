@@ -1,0 +1,152 @@
+package jdrb.banco.simulador.dao;
+
+import jdrb.banco.simulador.dao.implementations.CustomerDAOImpl;
+import jdrb.banco.simulador.model.Customer;
+import jdrb.banco.simulador.model.enums.CustomerStates;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class CustomerDAOImplTest {
+
+    private DataSource dataSource;
+    private Connection connection;
+    private PreparedStatement preparedStatement;
+    private Statement statement;
+    private ResultSet resultSet;
+    private CustomerDAOImpl dao;
+
+    @BeforeEach
+    public void setUp() throws SQLException {
+        dataSource = mock(DataSource.class);
+        connection = mock(Connection.class);
+        preparedStatement = mock(PreparedStatement.class);
+        statement = mock(Statement.class);
+        resultSet = mock(ResultSet.class);
+
+        when(dataSource.getConnection()).thenReturn(connection);
+        when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
+        when(connection.createStatement()).thenReturn(statement);
+
+        dao = new CustomerDAOImpl(dataSource);
+    }
+
+    @Test
+    public void testRegisterCustomer_Successful() throws SQLException {
+        when(preparedStatement.executeUpdate()).thenReturn(1);
+        Customer customer = createValidCustomer();
+
+        boolean result = dao.registerCustomer(customer);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testGetCustomerById_Exists() throws SQLException {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        mockCustomerResultSet(resultSet);
+
+        Customer customer = dao.getCustomerById("cli1");
+
+        assertNotNull(customer);
+        assertEquals("cli1", customer.getId());
+        assertEquals(CustomerStates.ACTIVE, customer.getState());
+    }
+
+    @Test
+    public void testGetCustomerById_NotFound() throws SQLException {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(false);
+
+        Customer customer = dao.getCustomerById("nonexistent");
+
+        assertNull(customer);
+    }
+
+    @Test
+    public void testGetCustomerById_InvalidState_ThrowsException() throws SQLException {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        when(resultSet.getString("id")).thenReturn("cli2");
+        when(resultSet.getString("name")).thenReturn("Ana");
+        when(resultSet.getString("last_name")).thenReturn("Gomez");
+        when(resultSet.getString("dni")).thenReturn("87654321");
+        when(resultSet.getString("email")).thenReturn("ana@example.com");
+        when(resultSet.getString("phone")).thenReturn("555123456");
+        when(resultSet.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(resultSet.getLong("creation_date")).thenReturn(System.currentTimeMillis());
+        when(resultSet.getString("state")).thenReturn("INVALID_STATE");
+
+        assertThrows(IllegalArgumentException.class, () -> dao.getCustomerById("cli2"));
+    }
+
+    @Test
+    public void testGetAllCustomers_SingleResult() throws SQLException {
+        when(statement.executeQuery(anyString())).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true, false);
+        mockCustomerResultSet(resultSet);
+
+        List<Customer> customers = dao.getAllCustomers();
+
+        assertEquals(1, customers.size());
+    }
+
+    @Test
+    public void testUpdateCustomer_Successful() throws SQLException {
+        when(preparedStatement.executeUpdate()).thenReturn(1);
+        Customer customer = createValidCustomer();
+
+        boolean result = dao.updateCustomer(customer);
+
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDeleteCustomer_Successful() throws SQLException {
+        when(preparedStatement.executeUpdate()).thenReturn(1);
+
+        boolean deleted = dao.deleteCustomer("cli1");
+
+        assertTrue(deleted);
+    }
+
+    @Test
+    public void testRegisterCustomer_SQLException_ThrowsRuntime() throws SQLException {
+        when(preparedStatement.executeUpdate()).thenThrow(new SQLException("DB Error"));
+        Customer customer = createValidCustomer();
+
+        assertThrows(RuntimeException.class, () -> dao.registerCustomer(customer));
+    }
+
+    private Customer createValidCustomer() {
+        Customer customer = new Customer();
+        customer.setId("cli1");
+        customer.setName("Juan");
+        customer.setLastname("Perez");
+        customer.setDni("12345678");
+        customer.setEmail("juan@example.com");
+        customer.setPhone("555000111");
+        customer.setCreationDate(System.currentTimeMillis());
+        customer.setState(CustomerStates.ACTIVE);
+        return customer;
+    }
+
+    private void mockCustomerResultSet(ResultSet rs) throws SQLException {
+        when(rs.getString("id")).thenReturn("cli1");
+        when(rs.getString("name")).thenReturn("Juan");
+        when(rs.getString("last_name")).thenReturn("Perez");
+        when(rs.getString("dni")).thenReturn("12345678");
+        when(rs.getString("email")).thenReturn("juan@example.com");
+        when(rs.getString("phone")).thenReturn("555000111");
+        when(rs.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(rs.getLong("creation_date")).thenReturn(System.currentTimeMillis());
+        when(rs.getString("state")).thenReturn("ACTIVE");
+    }
+}
