@@ -7,8 +7,8 @@ import java.util.List;
 
 public interface TransactionDAO {
     boolean registerTransaction(Transaction transaccion);
-    Transaction getTransactionById(String id);
-    List<Transaction> getTransactionsBySourceAccount(String idCuenta);
-    List<Transaction> getTransactionsByDestinationAccount(String idCuenta);
-    List<Transaction> getTransactionsBetweenDates(String idCuenta, Date desde, Date hasta);
+    Transaction getTransactionById(Long id);
+    List<Transaction> getTransactionsBySourceAccount(Long idCuenta);
+    List<Transaction> getTransactionsByDestinationAccount(Long idCuenta);
+    List<Transaction> getTransactionsBetweenDates(Long idCuenta, Date desde, Date hasta);
 }

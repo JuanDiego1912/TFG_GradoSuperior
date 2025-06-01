@@ -20,47 +20,63 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable String id) {
-        Customer customer = customerService.getCustomerById(id);
-        return customer != null ? ResponseEntity.ok(customer) : ResponseEntity.notFound().build();
+    public ResponseEntity<Customer> getCustomer(@PathVariable Long id) {
+        try {
+            Customer customer = customerService.getCustomerById(id);
+            return ResponseEntity.ok(customer);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        return ResponseEntity.ok(customerService.getAllCustomers());
     }
 
     @PostMapping
     public ResponseEntity<String> registerCustomer(@RequestBody Customer customer) {
-        boolean registered = customerService.registerCustomer(customer);
-        return registered ? ResponseEntity.ok("Cliente registrado")
-                : ResponseEntity.badRequest().body("Error al registrar cliente");
-    }
-
-    @GetMapping
-    public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
+        try {
+            boolean registered = customerService.registerCustomer(customer);
+            return registered ?
+                    ResponseEntity.ok("Cliente registrado") :
+                    ResponseEntity.status(500).body("No se pudo registrar el cliente");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error de validación: " + e.getMessage());
+        }
     }
 
     @PutMapping
     public ResponseEntity<String> updateCustomer(@RequestBody Customer customer) {
-        boolean updated = customerService.updateCustomer(customer);
-        return updated ? ResponseEntity.ok("Cliente actualizado")
-                : ResponseEntity.badRequest().body("Error al actualizar el cliente");
+        try {
+            boolean updated = customerService.updateCustomer(customer);
+            return updated ?
+                    ResponseEntity.ok("Cliente actualizado") :
+                    ResponseEntity.status(500).body("No se pudo actualizar el cliente");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error de validación: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable String id) {
-        boolean deleted = customerService.deleteCustomer(id);
-        return deleted ? ResponseEntity.ok("Cliente eliminado")
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<String> deleteCustomer(@PathVariable Long id) {
+        try {
+            boolean deleted = customerService.deleteCustomer(id);
+            return deleted ?
+                    ResponseEntity.ok("Cliente eliminado") :
+                    ResponseEntity.status(404).body("Cliente no encontrado");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error de validación: " + e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Customer> login(@RequestBody LoginRequest login) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest login) {
         try {
-            Customer customer = customerService.login(
-                    login.getEmail(),
-                    login.getPassword()
-            );
+            Customer customer = customerService.login(login.getEmail(), login.getPassword());
             return ResponseEntity.ok(customer);
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(401).body(null);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body("Credenciales inválidas: " + e.getMessage());
         }
     }
 
@@ -81,5 +97,4 @@ public class CustomerController {
             this.password = password;
         }
     }
-
 }

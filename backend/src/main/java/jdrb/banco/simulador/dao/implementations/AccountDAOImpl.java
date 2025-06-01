@@ -27,8 +27,13 @@ public class AccountDAOImpl implements AccountDAO {
 
     @Override
     public boolean registerAccount(Account account) {
-        String sql = "INSERT INTO " + AccountTable.TABLE_NAME + " VALUES (?, ?, ?, ?, ?)";
-        int accountInserted = 0;
+        String sql = "INSERT INTO " + AccountTable.TABLE_NAME + " ("
+                + AccountTable.ACCOUNT_NUMBER + ", "
+                + AccountTable.CUSTOMER_ID + ", "
+                + AccountTable.BALANCE + ", "
+                + AccountTable.TYPE + ") VALUES (?, ?, ?, ?)";
+
+        int rowsAffected = 0;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -40,33 +45,34 @@ public class AccountDAOImpl implements AccountDAO {
                 throw new RuntimeException("Error. Cannot insert an account with a negative balance");
             }
 
-            ps.setString(1, account.getId());
-            ps.setString(2, account.getCustomerId());
+            ps.setString(1, account.getAccountNumber());
+            ps.setLong(2, account.getCustomerId());
             ps.setFloat(3, account.getBalance());
             ps.setString(4, account.getAccountType().name());
-            ps.setLong(5, account.getCreationDate());
-            accountInserted = ps.executeUpdate();
+            rowsAffected = ps.executeUpdate();
 
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error inserting account in database", sqlEx);
         }
 
-        return accountInserted > 0;
+        return rowsAffected > 0;
     }
 
     @Override
-    public Account getAccountById(String id) {
+    public Account getAccountById(Long id) {
         String sql = "SELECT * FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.ID + " = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, id);
+
+            ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 return mapAccountFromResultSet(
-                        rs.getString(AccountTable.ID),
-                        rs.getString(AccountTable.CUSTOMER_ID),
+                        rs.getLong(AccountTable.ID),
+                        rs.getString(AccountTable.ACCOUNT_NUMBER),
+                        rs.getLong(AccountTable.CUSTOMER_ID),
                         rs.getFloat(AccountTable.BALANCE),
                         rs.getString(AccountTable.TYPE),
                         rs.getLong(AccountTable.CREATION_DATE)
@@ -82,21 +88,22 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public List<Account> getAccountsByClient(String customerId) {
+    public List<Account> getAccountsByClient(Long customerId) {
         String sql = "SELECT * FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.CUSTOMER_ID + " = ?";
         List<Account> accounts = null;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, customerId);
+            ps.setLong(1, customerId);
             ResultSet rs = ps.executeQuery();
 
             accounts = new LinkedList<>();
             while (rs.next()) {
                 Account account = mapAccountFromResultSet(
-                        rs.getString(AccountTable.ID),
-                        rs.getString(AccountTable.CUSTOMER_ID),
+                        rs.getLong(AccountTable.ID),
+                        rs.getString(AccountTable.ACCOUNT_NUMBER),
+                        rs.getLong(AccountTable.CUSTOMER_ID),
                         rs.getFloat(AccountTable.BALANCE),
                         rs.getString(AccountTable.TYPE),
                         rs.getLong(AccountTable.CREATION_DATE)
@@ -122,7 +129,7 @@ public class AccountDAOImpl implements AccountDAO {
 
             ps.setFloat(1, account.getBalance());
             ps.setString(2, account.getAccountType().name());
-            ps.setString(3, account.getId());
+            ps.setLong(3, account.getId());
 
             accountUpdated = ps.executeUpdate();
 
@@ -134,13 +141,13 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public boolean deleteAccount(String id) {
+    public boolean deleteAccount(Long id) {
         String sql = "DELETE FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.ID + " = ?";
         int accountDeleted = 0;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
-            ps.setString(1, id);
+            ps.setLong(1, id);
             accountDeleted = ps.executeUpdate();
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error deleting account with id " + id + " from database", sqlEx);
@@ -150,15 +157,15 @@ public class AccountDAOImpl implements AccountDAO {
     }
 
     @Override
-    public boolean deleteAccountForClient(String customerId, String accountId) {
+    public boolean deleteAccountForClient(Long customerId, Long accountId) {
         String sql = "DELETE FROM " + AccountTable.TABLE_NAME + " WHERE " + AccountTable.CUSTOMER_ID + " = ? AND " + AccountTable.ID + " = ?";
         int accountDeleted = 0;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, customerId);
-            ps.setString(2, accountId);
+            ps.setLong(1, customerId);
+            ps.setLong(2, accountId);
             accountDeleted = ps.executeUpdate();
 
         }catch (SQLException sqlEx) {
@@ -168,13 +175,15 @@ public class AccountDAOImpl implements AccountDAO {
         return accountDeleted > 0;
     }
 
-    private Account mapAccountFromResultSet(String id,
-                                          String customerId,
+    private Account mapAccountFromResultSet(Long id,
+                                          String accountNumber,
+                                          Long customerId,
                                           float balance,
                                           String type,
                                           Long creationDate) {
         Account account = new Account();
         account.setId(id);
+        account.setAccountNumber(accountNumber);
         account.setCustomerId(customerId);
         account.setBalance(balance);
 

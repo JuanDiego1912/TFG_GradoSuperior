@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface CustomerDAO {
     boolean registerCustomer(Customer cliente);
-    Customer getCustomerById(String id);
+    Customer getCustomerById(long id);
     List<Customer> getAllCustomers();
     boolean updateCustomer(Customer cliente);
-    boolean deleteCustomer(String id);
+    boolean deleteCustomer(long id);
     Customer findByEmail(String email);
 }

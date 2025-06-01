@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface AccountDAO {
     boolean registerAccount(Account account);
-    Account getAccountById(String id);
-    List<Account> getAccountsByClient(String idCliente);
+    Account getAccountById(Long id);
+    List<Account> getAccountsByClient(Long idCliente);
     boolean updateAccount(Account cuenta);
-    boolean deleteAccount(String id);
-    boolean deleteAccountForClient(String idCliente, String idCuenta);
+    boolean deleteAccount(Long id);
+    boolean deleteAccountForClient(Long idCliente, Long idCuenta);
 }

@@ -23,39 +23,42 @@ public class AccountServiceImpl implements AccountService {
         if (account == null) {
             throw new IllegalArgumentException("Account cannot be null or empty");
         }
-        validateId(account.getId(), "Account ID");
-        validateId(account.getCustomerId(), "Customer ID");
+
+        if (account.getAccountNumber() == null || account.getAccountNumber().isEmpty()) {
+            account.setAccountNumber(generateAccountNumber());
+        }
+
         return accountDAO.registerAccount(account);
     }
 
     @Override
-    public Account getAccountById(String id) {
+    public Account getAccountById(Long id) {
         validateId(id, "Account ID");
         return accountDAO.getAccountById(id);
     }
 
     @Override
-    public List<Account> getAccountsByClient(String customerId) {
+    public List<Account> getAccountsByClient(Long customerId) {
         validateId(customerId, "Customer ID");
         return accountDAO.getAccountsByClient(customerId);
     }
 
     @Override
     public boolean updateAccount(Account account) {
-        if (account == null || account.getId() == null || account.getId().isEmpty()) {
+        if (account == null || account.getId() == null || account.getId() <= 0) {
             throw new IllegalArgumentException("Account or account ID cannot be null or empty");
         }
         return accountDAO.updateAccount(account);
     }
 
     @Override
-    public boolean deleteAccount(String id) {
-        validateId(id, "Account ID");
+    public boolean deleteAccount(Long id) {
 
         Account account = getAccountById(id);
         if (account == null) {
             throw new IllegalArgumentException("Account not found with ID: " + id);
         }
+        validateId(id, "Account ID");
         if (account.getBalance() > 0.0) {
             throw new IllegalStateException("Cannot delete account with active balance: " + account.getBalance());
         }
@@ -64,10 +67,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public boolean deleteAccountForClient(String customerId, String accountId) {
+    public boolean deleteAccountForClient(Long customerId, Long accountId) {
+
         validateId(customerId, "Customer ID");
         validateId(accountId, "Account ID");
-
         Account account = getAccountById(accountId);
         if (account == null) {
             throw new IllegalArgumentException("Account not found with ID: " + accountId);
@@ -79,9 +82,17 @@ public class AccountServiceImpl implements AccountService {
         return accountDAO.deleteAccountForClient(customerId, accountId);
     }
 
-    private void validateId(String id, String fielname) {
-        if (id == null || id.isEmpty()) {
-            throw new IllegalArgumentException(fielname + " cannot be null or empty");
+    private String generateAccountNumber() {
+        StringBuilder accountNumber = new StringBuilder("ES");
+        for (int i = 0; i < 22; i++) {
+            accountNumber.append((int) (Math.random() * 10));
+        }
+        return accountNumber.toString();
+    }
+
+    private void validateId(Long id, String fieldname) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException(fieldname + " must be a positive number");
         }
     }
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";   
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { login as loginService } from "../services/customerService";
+import { loginCustomer as loginService } from "../services/customerService";
 import "../styles/Login.css";
 
 export default function Login() {

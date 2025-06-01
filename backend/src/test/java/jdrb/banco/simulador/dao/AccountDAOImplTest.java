@@ -41,7 +41,12 @@ public class AccountDAOImplTest {
         Account account = createValidAccount();
         boolean result = dao.registerAccount(account);
 
-        assertTrue(result, "Account should be registered successfully");
+        assertTrue(result);
+        verify(ps).setString(1, account.getAccountNumber());
+        verify(ps).setLong(2, account.getCustomerId());
+        verify(ps).setFloat(3, account.getBalance());
+        verify(ps).setString(4, account.getAccountType().name());
+        verify(ps).executeUpdate();
     }
 
     @Test
@@ -49,15 +54,17 @@ public class AccountDAOImplTest {
         Account account = createValidAccount();
         account.setCustomerId(null);
 
-        assertThrows(RuntimeException.class, () -> dao.registerAccount(account), "Should throw for null customer ID");
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> dao.registerAccount(account));
+        assertTrue(thrown.getMessage().contains("null or empty customer id"));
     }
 
     @Test
     public void registerAccount_negativeBalance_throwsException() {
         Account account = createValidAccount();
-        account.setBalance(-500f);
+        account.setBalance(-100);
 
-        assertThrows(RuntimeException.class, () -> dao.registerAccount(account), "Should throw for negative balance");
+        RuntimeException thrown = assertThrows(RuntimeException.class, () -> dao.registerAccount(account));
+        assertTrue(thrown.getMessage().contains("negative balance"));
     }
 
     @Test
@@ -66,10 +73,12 @@ public class AccountDAOImplTest {
         when(rs.next()).thenReturn(true);
         mockResultSet(rs);
 
-        Account account = dao.getAccountById("c1");
+        Account account = dao.getAccountById(1L);
 
         assertNotNull(account);
-        assertEquals("c1", account.getId());
+        assertEquals(1L, account.getId());
+        assertEquals("ACC123", account.getAccountNumber());
+        verify(ps).setLong(1, 1L);
     }
 
     @Test
@@ -77,9 +86,10 @@ public class AccountDAOImplTest {
         when(ps.executeQuery()).thenReturn(rs);
         when(rs.next()).thenReturn(false);
 
-        Account account = dao.getAccountById("nonexistent");
+        Account account = dao.getAccountById(999L);
 
         assertNull(account);
+        verify(ps).setLong(1, 999L);
     }
 
     @Test
@@ -88,9 +98,12 @@ public class AccountDAOImplTest {
         when(rs.next()).thenReturn(true, false);
         mockResultSet(rs);
 
-        List<Account> accounts = dao.getAccountsByClient("client1");
+        List<Account> accounts = dao.getAccountsByClient(1L);
 
+        assertNotNull(accounts);
         assertEquals(1, accounts.size());
+        assertEquals(1L, accounts.get(0).getCustomerId());
+        verify(ps).setLong(1, 1L);
     }
 
     @Test
@@ -100,31 +113,41 @@ public class AccountDAOImplTest {
         Account account = createValidAccount();
         boolean updated = dao.updateAccount(account);
 
-        assertTrue(updated, "Account should be updated");
+        assertTrue(updated);
+        verify(ps).setFloat(1, account.getBalance());
+        verify(ps).setString(2, account.getAccountType().name());
+        verify(ps).setLong(3, account.getId());
+        verify(ps).executeUpdate();
     }
 
     @Test
     public void deleteAccount_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        boolean deleted = dao.deleteAccount("c1");
+        boolean deleted = dao.deleteAccount(1L);
 
-        assertTrue(deleted, "Account should be deleted");
+        assertTrue(deleted);
+        verify(ps).setLong(1, 1L);
+        verify(ps).executeUpdate();
     }
 
     @Test
     public void deleteAccountForClient_successful() throws SQLException {
         when(ps.executeUpdate()).thenReturn(1);
 
-        boolean deleted = dao.deleteAccountForClient("client1", "c1");
+        boolean deleted = dao.deleteAccountForClient(1L, 1L);
 
-        assertTrue(deleted, "Client's account should be deleted");
+        assertTrue(deleted);
+        verify(ps).setLong(1, 1L);
+        verify(ps).setLong(2, 1L);
+        verify(ps).executeUpdate();
     }
 
     private Account createValidAccount() {
         Account account = new Account();
-        account.setId("c1");
-        account.setCustomerId("client1");
+        account.setId(1L);
+        account.setAccountNumber("ACC123");
+        account.setCustomerId(1L);
         account.setBalance(1000f);
         account.setAccountType(AccountType.SAVINGS);
         account.setCreationDate(System.currentTimeMillis());
@@ -132,8 +155,9 @@ public class AccountDAOImplTest {
     }
 
     private void mockResultSet(ResultSet rs) throws SQLException {
-        when(rs.getString(AccountTable.ID)).thenReturn("c1");
-        when(rs.getString(AccountTable.CUSTOMER_ID)).thenReturn("client1");
+        when(rs.getLong(AccountTable.ID)).thenReturn(1L);
+        when(rs.getString(AccountTable.ACCOUNT_NUMBER)).thenReturn("ACC123");
+        when(rs.getLong(AccountTable.CUSTOMER_ID)).thenReturn(1L);
         when(rs.getFloat(AccountTable.BALANCE)).thenReturn(1000f);
         when(rs.getString(AccountTable.TYPE)).thenReturn("SAVINGS");
         when(rs.getLong(AccountTable.CREATION_DATE)).thenReturn(System.currentTimeMillis());

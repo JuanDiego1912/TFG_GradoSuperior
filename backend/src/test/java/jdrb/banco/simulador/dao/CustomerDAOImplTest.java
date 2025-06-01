@@ -53,10 +53,10 @@ public class CustomerDAOImplTest {
         when(resultSet.next()).thenReturn(true);
         mockCustomerResultSet(resultSet);
 
-        Customer customer = dao.getCustomerById("cli1");
+        Customer customer = dao.getCustomerById(1L);
 
         assertNotNull(customer);
-        assertEquals("cli1", customer.getId());
+        assertEquals(1L, customer.getId());
         assertEquals(CustomerStates.ACTIVE, customer.getState());
     }
 
@@ -65,26 +65,29 @@ public class CustomerDAOImplTest {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(false);
 
-        Customer customer = dao.getCustomerById("nonexistent");
+        Customer customer = dao.getCustomerById(999L);
 
         assertNull(customer);
     }
 
     @Test
-    public void testGetCustomerById_InvalidState_ThrowsException() throws SQLException {
+    public void testGetCustomerById_InvalidState_AssignsUnknown() throws SQLException {
         when(preparedStatement.executeQuery()).thenReturn(resultSet);
         when(resultSet.next()).thenReturn(true);
-        when(resultSet.getString("id")).thenReturn("cli2");
+        when(resultSet.getLong("id")).thenReturn(2L);
         when(resultSet.getString("name")).thenReturn("Ana");
         when(resultSet.getString("last_name")).thenReturn("Gomez");
         when(resultSet.getString("dni")).thenReturn("87654321");
         when(resultSet.getString("email")).thenReturn("ana@example.com");
         when(resultSet.getString("phone")).thenReturn("555123456");
-        when(resultSet.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(resultSet.getString("password")).thenReturn("hashed_password");
         when(resultSet.getLong("creation_date")).thenReturn(System.currentTimeMillis());
-        when(resultSet.getString("state")).thenReturn("INVALID_STATE");
+        when(resultSet.getString("state")).thenReturn("UNKNOWN");
 
-        assertThrows(IllegalArgumentException.class, () -> dao.getCustomerById("cli2"));
+        Customer customer = dao.getCustomerById(2L);
+
+        assertNotNull(customer);
+        assertEquals(CustomerStates.UNKNOWN, customer.getState());
     }
 
     @Test
@@ -96,6 +99,7 @@ public class CustomerDAOImplTest {
         List<Customer> customers = dao.getAllCustomers();
 
         assertEquals(1, customers.size());
+        assertEquals("Juan", customers.get(0).getName());
     }
 
     @Test
@@ -112,7 +116,7 @@ public class CustomerDAOImplTest {
     public void testDeleteCustomer_Successful() throws SQLException {
         when(preparedStatement.executeUpdate()).thenReturn(1);
 
-        boolean deleted = dao.deleteCustomer("cli1");
+        boolean deleted = dao.deleteCustomer(1L);
 
         assertTrue(deleted);
     }
@@ -125,27 +129,40 @@ public class CustomerDAOImplTest {
         assertThrows(RuntimeException.class, () -> dao.registerCustomer(customer));
     }
 
+    @Test
+    public void testFindByEmail_ReturnsCustomer() throws SQLException {
+        when(preparedStatement.executeQuery()).thenReturn(resultSet);
+        when(resultSet.next()).thenReturn(true);
+        mockCustomerResultSet(resultSet);
+
+        Customer customer = dao.findByEmail("juan@example.com");
+
+        assertNotNull(customer);
+        assertEquals("juan@example.com", customer.getEmail());
+    }
+
     private Customer createValidCustomer() {
         Customer customer = new Customer();
-        customer.setId("cli1");
+        customer.setId(1L);
         customer.setName("Juan");
         customer.setLastname("Perez");
         customer.setDni("12345678");
         customer.setEmail("juan@example.com");
         customer.setPhone("555000111");
         customer.setCreationDate(System.currentTimeMillis());
+        customer.setPassword("hashed_password");
         customer.setState(CustomerStates.ACTIVE);
         return customer;
     }
 
     private void mockCustomerResultSet(ResultSet rs) throws SQLException {
-        when(rs.getString("id")).thenReturn("cli1");
+        when(rs.getLong("id")).thenReturn(1L);
         when(rs.getString("name")).thenReturn("Juan");
         when(rs.getString("last_name")).thenReturn("Perez");
         when(rs.getString("dni")).thenReturn("12345678");
         when(rs.getString("email")).thenReturn("juan@example.com");
         when(rs.getString("phone")).thenReturn("555000111");
-        when(rs.getString("password")).thenReturn("$2a$10$MockedPasswordHash1234567890ABCDE");
+        when(rs.getString("password")).thenReturn("hashed_password");
         when(rs.getLong("creation_date")).thenReturn(System.currentTimeMillis());
         when(rs.getString("state")).thenReturn("ACTIVE");
     }

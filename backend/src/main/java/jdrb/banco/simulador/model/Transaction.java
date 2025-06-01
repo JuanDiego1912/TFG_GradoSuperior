@@ -2,27 +2,29 @@ package jdrb.banco.simulador.model;
 
 import jdrb.banco.simulador.model.enums.TransactionStates;
 import jdrb.banco.simulador.model.enums.TransactionType;
+import org.jetbrains.annotations.*;
 
 import java.util.Date;
 
 public class Transaction {
 
-    private String id;
-    private String originAccountId;
-    private String destinationAccountId;
+    private Long id;
+
+    private Long originAccountId;
+    private Long destinationAccountId;
     private float amount;
     private TransactionType type;
-    private long timestamp;
+    private Long timestamp;
     private TransactionStates state;
 
     public Transaction() {}
 
-    public Transaction(String id,
-                       String originAccountId,
-                       String destinationAccountId,
+    public Transaction(Long id,
+                       Long originAccountId,
+                       Long destinationAccountId,
                        float transactionAmount,
                        TransactionType type,
-                       long timestamp,
+                       Long timestamp,
                        TransactionStates state) {
         this.id = id;
         this.originAccountId = originAccountId;
@@ -33,27 +35,27 @@ public class Transaction {
         this.state = state;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getOriginAccountId() {
+    public Long getOriginAccountId() {
         return originAccountId;
     }
 
-    public void setOriginAccountId(String originAccountId) {
+    public void setOriginAccountId(Long originAccountId) {
         this.originAccountId = originAccountId;
     }
 
-    public String getDestinationAccountId() {
+    public Long getDestinationAccountId() {
         return destinationAccountId;
     }
 
-    public void setDestinationAccountId(String destinationAccountId) {
+    public void setDestinationAccountId(Long destinationAccountId) {
         this.destinationAccountId = destinationAccountId;
     }
 

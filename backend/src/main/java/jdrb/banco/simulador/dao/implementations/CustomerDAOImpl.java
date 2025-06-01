@@ -26,39 +26,38 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     @Override
     public boolean registerCustomer(Customer customer) {
-        String sql = "INSERT INTO " + CustomersTable.TABLE_NAME + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        int customerInserted = 0;
+        String sql = "INSERT INTO " + CustomersTable.TABLE_NAME + " ("
+                + CustomersTable.NAME + ", "
+                + CustomersTable.LAST_NAME + ", "
+                + CustomersTable.DNI + ", "
+                + CustomersTable.EMAIL + ", "
+                + CustomersTable.PHONE + ", "
+                + CustomersTable.PASSWORD + ", "
+                + CustomersTable.STATE + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        int affectedRows = 0;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, customer.getId());
-            statement.setString(2, customer.getName());
-            statement.setString(3, customer.getLastname());
-            statement.setString(4, customer.getDni());
-            statement.setString(5, customer.getEmail());
-            statement.setString(6, customer.getPhone());
-            statement.setString(7, customer.getPassword());
-            statement.setLong(8, customer.getCreationDate());
-            statement.setString(9, customer.getState().name());
-
-            customerInserted = statement.executeUpdate();
+            setPreparedStatementData(statement, customer);
+            affectedRows = statement.executeUpdate();
 
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error inserting customer in database", sqlEx);
         }
 
-        return customerInserted > 0;
+        return affectedRows > 0;
     }
 
     @Override
-    public Customer getCustomerById(String id) {
+    public Customer getCustomerById(long id) {
         String sql = "SELECT * FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.ID + " = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, id);
+            ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
 
             String[] customerStates = Arrays.stream(CustomerStates.values()).map(CustomerStates::name).toArray(String[]::new);
@@ -72,7 +71,7 @@ public class CustomerDAOImpl implements CustomerDAO {
                 }
 
                 return setCustomerData(
-                        rs.getString(CustomersTable.ID),
+                        rs.getLong(CustomersTable.ID),
                         rs.getString(CustomersTable.NAME),
                         rs.getString(CustomersTable.LAST_NAME),
                         rs.getString(CustomersTable.DNI),
@@ -102,7 +101,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             while (rs.next()) {
                 Customer customer = setCustomerData(
-                        rs.getString(CustomersTable.ID),
+                        rs.getLong(CustomersTable.ID),
                         rs.getString(CustomersTable.NAME),
                         rs.getString(CustomersTable.LAST_NAME),
                         rs.getString(CustomersTable.DNI),
@@ -136,15 +135,8 @@ public class CustomerDAOImpl implements CustomerDAO {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, customer.getName());
-            ps.setString(2, customer.getLastname());
-            ps.setString(3, customer.getDni());
-            ps.setString(4, customer.getEmail());
-            ps.setString(5, customer.getPhone());
-            ps.setString(6, customer.getPassword());
-            ps.setString(7, customer.getState().name());
-            ps.setString(8, customer.getId());
-
+            setPreparedStatementData(ps, customer);
+            ps.setLong(8, customer.getId());
             customerUpdated = ps.executeUpdate();
 
         } catch (SQLException sqlEx) {
@@ -155,14 +147,14 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public boolean deleteCustomer(String id) {
+    public boolean deleteCustomer(long id) {
         String sql = "DELETE FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.ID + " = ?";
         int customerDeleted = 0;
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            statement.setString(1, id);
+            statement.setLong(1, id);
             customerDeleted = statement.executeUpdate();
 
         } catch (SQLException sqlEx) {
@@ -185,7 +177,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
             if (rs.next()) {
                 return setCustomerData(
-                        rs.getString(CustomersTable.ID),
+                        rs.getLong(CustomersTable.ID),
                         rs.getString(CustomersTable.NAME),
                         rs.getString(CustomersTable.LAST_NAME),
                         rs.getString(CustomersTable.DNI),
@@ -197,6 +189,7 @@ public class CustomerDAOImpl implements CustomerDAO {
                 );
             }
 
+            rs.close();
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error getting customer with email " + email + " from database", sqlEx);
         }
@@ -204,7 +197,17 @@ public class CustomerDAOImpl implements CustomerDAO {
         return null;
     }
 
-    private Customer setCustomerData(String id,
+    private void setPreparedStatementData(PreparedStatement statement, Customer customer) throws SQLException {
+        statement.setString(1, customer.getName());
+        statement.setString(2, customer.getLastname());
+        statement.setString(3, customer.getDni());
+        statement.setString(4, customer.getEmail());
+        statement.setString(5, customer.getPhone());
+        statement.setString(6, customer.getPassword());
+        statement.setString(7, customer.getState().name());
+    }
+
+    private Customer setCustomerData(long id,
                                    String name,
                                    String lastname,
                                    String dni,

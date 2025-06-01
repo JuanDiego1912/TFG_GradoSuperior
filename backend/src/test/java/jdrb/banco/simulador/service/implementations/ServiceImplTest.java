@@ -37,7 +37,7 @@ public class ServiceImplTest {
         transactionDAO = mock(TransactionDAO.class);
 
         accountService = new AccountServiceImpl(accountDAO);
-        customerService = new CustomerServiceImpl(customerDAO);
+        customerService = new CustomerServiceImpl(customerDAO, accountDAO);
         transactionService = new TransactionServiceImpl(transactionDAO, accountDAO);
     }
 
@@ -45,7 +45,15 @@ public class ServiceImplTest {
 
     @Test
     void registerAccount_validAccount_shouldSucceed() {
-        Account acc = new Account("A1", "C1", 100.0f, AccountType.SAVINGS, System.currentTimeMillis());
+        Account acc = new Account(
+                1L,
+                "ES12345678901234567890",
+                1L,
+                100.0f,
+                AccountType.SAVINGS,
+                System.currentTimeMillis()
+        );
+
         when(accountDAO.registerAccount(acc)).thenReturn(true);
 
         assertTrue(accountService.registerAccount(acc));
@@ -60,70 +68,100 @@ public class ServiceImplTest {
 
     @Test
     void getAccountById_emptyId_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.getAccountById(""));
-        assertEquals("Account ID cannot be null or empty", ex.getMessage());
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.getAccountById(null));
+        assertEquals("Account ID must be a positive number", ex.getMessage());
     }
 
     @Test
     void updateAccount_invalidAccount_shouldThrow() {
-        Account acc = new Account(null, null, 0, null, 0L);
+        Account acc = new Account(null, null, null, 0, null, 0L);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.updateAccount(acc));
         assertEquals("Account or account ID cannot be null or empty", ex.getMessage());
     }
 
     @Test
     void deleteAccount_invalidId_shouldThrow() {
-        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccount(""));
-        assertEquals("Account ID cannot be null or empty", ex.getMessage());
+        Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccount(null));
+        assertEquals("Account ID must be a positive number", ex.getMessage());
     }
 
     @Test
     void deleteAccountForClient_nullIds_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> accountService.deleteAccountForClient(null, null));
-        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
+        assertEquals("Customer ID must be a positive number", ex.getMessage());
     }
 
     @Test
     void getAccountsByClient_valid_shouldReturnList() {
-        Account a1 = new Account("A1", "C1", 100f, AccountType.SAVINGS, System.currentTimeMillis());
-        when(accountDAO.getAccountsByClient("C1")).thenReturn(Arrays.asList(a1));
+        Account a1 = new Account(
+                1L,
+                "ES12345678901234567890",
+                1L,
+                100f,
+                AccountType.SAVINGS,
+                System.currentTimeMillis()
+        );
+        when(accountDAO.getAccountsByClient(1L)).thenReturn(Arrays.asList(a1));
 
-        List<Account> result = accountService.getAccountsByClient("C1");
+        List<Account> result = accountService.getAccountsByClient(1L);
 
         assertEquals(1, result.size());
-        assertEquals("A1", result.get(0).getId());
+        assertEquals(1L, result.get(0).getId());
     }
 
     // ----------------------- CustomerService Tests -------------------------
 
     @Test
     void registerCustomer_valid_shouldSucceed() {
-        Customer c = new Customer("C1", "Juan", "Perez", "12345678", "jperez@example.com", "643461329", "123456", System.currentTimeMillis(), CustomerStates.ACTIVE);
-        when(customerDAO.registerCustomer(c)).thenReturn(true);
+        Customer c = new Customer(
+                1L,
+                "Juan",
+                "Perez",
+                "12345678A",
+                "jperez@example.com",
+                "643461329",
+                "mypassword",
+                System.currentTimeMillis(),
+                CustomerStates.ACTIVE
+        );
 
-        assertTrue(customerService.registerCustomer(c));
-        verify(customerDAO).registerCustomer(c);
+        // Cuando registerCustomer es llamado, devuelve true
+        when(customerDAO.registerCustomer(any(Customer.class))).thenReturn(true);
+        // Cuando registerAccount es llamado, devuelve true (porque se crea cuenta para el cliente)
+        when(accountDAO.registerAccount(any(Account.class))).thenReturn(true);
+
+        // Ejecutamos el método bajo test
+        boolean result = customerService.registerCustomer(c);
+
+        // Verificamos que devolvió true
+        assertTrue(result);
+
+        // Verificamos que se llamó al DAO para registrar el cliente
+        verify(customerDAO).registerCustomer(any(Customer.class));
+
+        // Verificamos que se llamó al DAO para registrar la cuenta (cuenta creada automáticamente)
+        verify(accountDAO).registerAccount(any(Account.class));
     }
 
     @Test
     void registerCustomer_invalid_shouldThrow() {
-        Customer c = new Customer(null, null, null, null, null, null, null,0L, null);
+        Customer c = new Customer(100L, null, null, null, null, null, null, 0L, null);
         Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.registerCustomer(c));
-        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
+        assertEquals("Email cannot be null or empty", ex.getMessage());
     }
 
     @Test
     void getCustomerById_null_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> customerService.getCustomerById(null));
-        assertEquals("Customer ID cannot be null or empty", ex.getMessage());
+        assertEquals("Customer ID must be a positive number", ex.getMessage());
     }
 
     @Test
     void deleteCustomer_validId_shouldSucceed() {
-        when(customerDAO.deleteCustomer("C1")).thenReturn(true);
+        when(customerDAO.deleteCustomer(1L)).thenReturn(true);
 
-        assertTrue(customerService.deleteCustomer("C1"));
-        verify(customerDAO).deleteCustomer("C1");
+        assertTrue(customerService.deleteCustomer(1L));
+        verify(customerDAO).deleteCustomer(1L);
     }
 
     // ---------------------- TransactionService Tests -----------------------
@@ -131,17 +169,35 @@ public class ServiceImplTest {
     @Test
     void registerTransaction_valid_shouldSucceed() {
         Transaction t = new Transaction(
-                "T1",
-                "A1",
-                "A2",
+                1L,
+                1L,
+                2L,
                 500f,
                 TransactionType.TRANSFER,
                 System.currentTimeMillis(),
-                TransactionStates.COMPLETED);
+                TransactionStates.COMPLETED
+        );
 
-        Account originAccount = new Account("A1", "C1", 1000f, AccountType.SAVINGS, System.currentTimeMillis());
-        when(accountDAO.getAccountById("A1")).thenReturn(originAccount);
+        Account originAccount = new Account(
+                1L,
+                "ES98765432109876543210",
+                1L,
+                1000f,
+                AccountType.SAVINGS,
+                System.currentTimeMillis()
+        );
 
+        Account destinationAccount = new Account(
+                2L,
+                "ES12345678901234567890",
+                2L,
+                500f,
+                AccountType.SAVINGS,
+                System.currentTimeMillis()
+        );
+
+        when(accountDAO.getAccountById(1L)).thenReturn(originAccount);
+        when(accountDAO.getAccountById(2L)).thenReturn(destinationAccount);
         when(transactionDAO.registerTransaction(t)).thenReturn(true);
 
         assertTrue(transactionService.registerTransaction(t));
@@ -151,13 +207,14 @@ public class ServiceImplTest {
     @Test
     void registerTransaction_negativeAmount_shouldThrow() {
         Transaction t = new Transaction(
-                "T1",
-                "A1",
-                "A2",
+                1L,
+                1L,
+                2L,
                 -5f,
                 TransactionType.TRANSFER,
                 System.currentTimeMillis(),
-                TransactionStates.PEND);
+                TransactionStates.PEND
+        );
 
         Exception ex = assertThrows(RuntimeException.class, () -> transactionService.registerTransaction(t));
         assertEquals("Transaction amount must be greater than 0", ex.getMessage());
@@ -169,7 +226,7 @@ public class ServiceImplTest {
         Date before = new Date(now.getTime() - 10000);
 
         Exception ex = assertThrows(IllegalArgumentException.class, () ->
-                transactionService.getTransactionsBetweenDates("A1", now, before)
+                transactionService.getTransactionsBetweenDates(1L, now, before)
         );
         assertEquals("From date cannot be after to date", ex.getMessage());
     }
@@ -177,6 +234,6 @@ public class ServiceImplTest {
     @Test
     void getTransactionById_null_shouldThrow() {
         Exception ex = assertThrows(IllegalArgumentException.class, () -> transactionService.getTransactionById(null));
-        assertEquals("Transaction ID cannot be null or empty", ex.getMessage());
+        assertEquals("Transaction ID must be a positive number", ex.getMessage());
     }
 }

@@ -1,5 +1,5 @@
-import { use, useEffect, useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useEffect, useState } from "react";
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 function Dashboard() {
@@ -9,7 +9,7 @@ function Dashboard() {
 
     useEffect(() => {
         if (user) {
-            axios.get('http://localhost:8080/api/clientes/email/${user.email}')
+            axios.get(`http://localhost:8080/api/clientes/email/${user.email}`)
                 .then(response => {
                     setCliente(response.data);
                     return axios.get(

@@ -4,7 +4,7 @@ import jdrb.banco.simulador.model.enums.CustomerStates;
 
 public class Customer {
 
-    private String id;
+    private Long id;
     private String name;
     private String lastname;
     private String dni;
@@ -16,7 +16,7 @@ public class Customer {
 
     public Customer() {}
 
-    public Customer(String id,
+    public Customer(long id,
                     String name,
                     String lastname,
                     String dni,
@@ -36,11 +36,11 @@ public class Customer {
         this.state = state;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 

@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface CustomerService {
     boolean registerCustomer(Customer customer);
-    Customer getCustomerById(String id);
+    Customer getCustomerById(Long id);
     List<Customer> getAllCustomers();
     boolean updateCustomer(Customer customer);
-    boolean deleteCustomer(String id);
+    boolean deleteCustomer(Long id);
     Customer login(String email, String passsword);
 }

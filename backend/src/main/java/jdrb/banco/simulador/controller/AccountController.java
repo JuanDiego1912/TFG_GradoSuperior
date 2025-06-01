@@ -20,7 +20,7 @@ public class AccountController {
     }
 
     @PostMapping
-    public ResponseEntity<String> crearCuenta(@RequestBody Account cuenta) {
+    public ResponseEntity<String> registerAccount(@RequestBody Account cuenta) {
         try {
             boolean creada = accountService.registerAccount(cuenta);
             return creada ? ResponseEntity.ok("Cuenta creada")
@@ -31,7 +31,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> obtenerCuentaPorId(@PathVariable String id) {
+    public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
         try {
             Account cuenta = accountService.getAccountById(id);
             return cuenta != null ? ResponseEntity.ok(cuenta) : ResponseEntity.notFound().build();
@@ -41,12 +41,14 @@ public class AccountController {
     }
 
     @GetMapping("/cliente/{idCliente}")
-    public List<Account> obtenerCuentasPorCliente(@PathVariable String idCliente) {
-        return accountService.getAccountsByClient(idCliente);
+    public ResponseEntity<List<Account>> getAccountsByClient(@PathVariable Long idCliente) {
+        List<Account> cuentas = accountService.getAccountsByClient(idCliente);
+        return cuentas != null ? ResponseEntity.ok(cuentas)
+                : ResponseEntity.notFound().build();
     }
 
     @PutMapping
-    public ResponseEntity<String> actualizarCuenta(@RequestBody Account cuenta) {
+    public ResponseEntity<String> updateAccount(@RequestBody Account cuenta) {
         try {
             boolean actualizada = accountService.updateAccount(cuenta);
             return actualizada ? ResponseEntity.ok("Cuenta actualizada")
@@ -57,7 +59,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarCuenta(@PathVariable String id) {
+    public ResponseEntity<String> deleteAccount(@PathVariable Long id) {
         try {
             boolean eliminada = accountService.deleteAccount(id);
             return eliminada ? ResponseEntity.ok("Cuenta eliminada")
@@ -68,7 +70,7 @@ public class AccountController {
     }
 
     @DeleteMapping("/cliente/{idCliente}/cuenta/{idCuenta}")
-    public ResponseEntity<String> eliminarCuentaPorCliente(@PathVariable String idCliente, @PathVariable String idCuenta) {
+    public ResponseEntity<String> deleteAccountForClient(@PathVariable Long idCliente, @PathVariable Long idCuenta) {
         try {
             boolean eliminada = accountService.deleteAccountForClient(idCliente, idCuenta);
             return eliminada ? ResponseEntity.ok("Cuenta eliminada para el cliente")

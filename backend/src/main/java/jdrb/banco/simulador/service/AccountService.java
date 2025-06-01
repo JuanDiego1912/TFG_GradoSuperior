@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface AccountService {
     boolean registerAccount(Account account);
-    Account getAccountById(String id);
-    List<Account> getAccountsByClient(String customerId);
+    Account getAccountById(Long id);
+    List<Account> getAccountsByClient(Long customerId);
     boolean updateAccount(Account account);
-    boolean deleteAccount(String id);
-    boolean deleteAccountForClient(String customerId, String accountId);
+    boolean deleteAccount(Long id);
+    boolean deleteAccountForClient(Long customerId, Long accountId);
 }
