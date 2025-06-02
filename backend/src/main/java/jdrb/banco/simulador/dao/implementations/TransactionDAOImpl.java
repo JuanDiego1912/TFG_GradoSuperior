@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,7 +45,7 @@ public class TransactionDAOImpl implements TransactionDAO {
         }
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setLong(1, transaction.getOriginAccountId());
             ps.setLong(2, transaction.getDestinationAccountId());
@@ -57,6 +54,15 @@ public class TransactionDAOImpl implements TransactionDAO {
             ps.setString(5, transaction.getState().name());
 
             transactionInserted = ps.executeUpdate();
+
+            if (transactionInserted > 0) {
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    transaction.setId(generatedKeys.getLong(1));
+                } else {
+                    throw new SQLException("Creating transaction failed, no ID obtained.");
+                }
+            }
 
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error inserting transaction with id: " + transaction.getId() + " in database", sqlEx);

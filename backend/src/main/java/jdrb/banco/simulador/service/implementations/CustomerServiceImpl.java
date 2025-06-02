@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -31,7 +32,6 @@ public class CustomerServiceImpl implements CustomerService {
             throw new IllegalArgumentException("Customer cannot be null");
         }
 
-        validateId(customer.getId(), "Customer ID");
         validateField(customer.getEmail(), "Email");
         validateField(customer.getPassword(), "Password");
 
@@ -83,14 +83,23 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Customer getCustomerByEmail(String email) {
+        validateField(email, "Email");
+        return customerDAO.getCustomerByEmail(email);
+    }
+
+    @Override
     public Customer login(String email, String password) {
         validateField(email, "Email");
         validateField(password, "Password");
 
-        Customer customer = customerDAO.findByEmail(email);
-        if (customer == null) {
-            throw new IllegalArgumentException("No customer found with email: " + email);
+        Optional<Customer> optionalCustomer = Optional.ofNullable(customerDAO.getCustomerByEmail(email));
+
+        if (optionalCustomer.isEmpty()) {
+            throw new IllegalArgumentException("The email is not registered or the password is incorrect.");
         }
+
+        Customer customer = optionalCustomer.get();
 
         if (!BCrypt.checkpw(password, customer.getPassword())) {
             throw new IllegalArgumentException("Incorrect password");

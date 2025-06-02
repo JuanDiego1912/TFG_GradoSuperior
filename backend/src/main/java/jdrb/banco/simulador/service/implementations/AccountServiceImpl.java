@@ -38,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<Account> getAccountsByClient(Long customerId) {
+    public List<Account> getAccountsByCustomerId(Long customerId) {
         validateId(customerId, "Customer ID");
         return accountDAO.getAccountsByClient(customerId);
     }

@@ -17,10 +17,15 @@ export default function Login() {
 
         try {
             const customer = await loginService(email, password);
+            if (!customer || !customer.id) {
+                throw new Error("Credenciales inválidas");
+            }
+
             login(customer);
             navigate("/dashboard");
         } catch (err) {
-            setError("Credenciales inválidas o error en el servidor");
+            console.error("Error en el inicio de sesión:", err);
+            setError(err.message || "Error desconocido");
         }
     };
 

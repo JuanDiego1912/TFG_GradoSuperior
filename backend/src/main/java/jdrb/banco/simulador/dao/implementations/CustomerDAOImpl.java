@@ -38,10 +38,19 @@ public class CustomerDAOImpl implements CustomerDAO {
         int affectedRows = 0;
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             setPreparedStatementData(statement, customer);
             affectedRows = statement.executeUpdate();
+
+            if (affectedRows > 0) {
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    customer.setId(generatedKeys.getLong(1));
+                } else {
+                    throw new SQLException("Creating customer failed, no ID obtained.");
+                }
+            }
 
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error inserting customer in database", sqlEx);
@@ -165,7 +174,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     }
 
     @Override
-    public Customer findByEmail(String email) {
+    public Customer getCustomerByEmail(String email) {
         String sql = "SELECT * FROM " + CustomersTable.TABLE_NAME + " WHERE " + CustomersTable.EMAIL + " = ?";
 
         try (Connection connection = dataSource.getConnection();
@@ -199,7 +208,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
     private void setPreparedStatementData(PreparedStatement statement, Customer customer) throws SQLException {
         statement.setString(1, customer.getName());
-        statement.setString(2, customer.getLastname());
+        statement.setString(2, customer.getLastName());
         statement.setString(3, customer.getDni());
         statement.setString(4, customer.getEmail());
         statement.setString(5, customer.getPhone());
@@ -219,7 +228,7 @@ public class CustomerDAOImpl implements CustomerDAO {
         Customer customer = new Customer();
         customer.setId(id);
         customer.setName(name);
-        customer.setLastname(lastname);
+        customer.setLastName(lastname);
         customer.setDni(dni);
         customer.setEmail(email);
         customer.setPhone(phone);

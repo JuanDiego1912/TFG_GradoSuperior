@@ -65,7 +65,7 @@ class AccountServiceImplTest {
         );
         when(accountDAO.getAccountsByClient(1L)).thenReturn(accounts);
 
-        assertEquals(accounts, accountService.getAccountsByClient(1L));
+        assertEquals(accounts, accountService.getAccountsByCustomerId(1L));
     }
 
     @Test

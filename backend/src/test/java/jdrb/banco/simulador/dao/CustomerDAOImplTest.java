@@ -135,7 +135,7 @@ public class CustomerDAOImplTest {
         when(resultSet.next()).thenReturn(true);
         mockCustomerResultSet(resultSet);
 
-        Customer customer = dao.findByEmail("juan@example.com");
+        Customer customer = dao.getCustomerByEmail("juan@example.com");
 
         assertNotNull(customer);
         assertEquals("juan@example.com", customer.getEmail());
@@ -145,7 +145,7 @@ public class CustomerDAOImplTest {
         Customer customer = new Customer();
         customer.setId(1L);
         customer.setName("Juan");
-        customer.setLastname("Perez");
+        customer.setLastName("Perez");
         customer.setDni("12345678");
         customer.setEmail("juan@example.com");
         customer.setPhone("555000111");

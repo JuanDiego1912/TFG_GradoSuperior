@@ -6,7 +6,7 @@ public class Customer {
 
     private Long id;
     private String name;
-    private String lastname;
+    private String lastName;
     private String dni;
     private String email;
     private String phone;
@@ -27,7 +27,7 @@ public class Customer {
                     CustomerStates state) {
         this.id = id;
         this.name = name;
-        this.lastname = lastname;
+        this.lastName = lastname;
         this.dni = dni;
         this.email = email;
         this.phone = customerPhone;
@@ -52,12 +52,12 @@ public class Customer {
         this.name = name;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public String getDni() {

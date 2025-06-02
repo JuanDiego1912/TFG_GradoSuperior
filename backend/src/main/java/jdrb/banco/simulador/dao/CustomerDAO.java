@@ -10,5 +10,5 @@ public interface CustomerDAO {
     List<Customer> getAllCustomers();
     boolean updateCustomer(Customer cliente);
     boolean deleteCustomer(long id);
-    Customer findByEmail(String email);
+    Customer getCustomerByEmail(String email);
 }

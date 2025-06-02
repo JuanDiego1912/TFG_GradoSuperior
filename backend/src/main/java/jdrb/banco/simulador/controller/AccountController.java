@@ -41,8 +41,8 @@ public class AccountController {
     }
 
     @GetMapping("/cliente/{idCliente}")
-    public ResponseEntity<List<Account>> getAccountsByClient(@PathVariable Long idCliente) {
-        List<Account> cuentas = accountService.getAccountsByClient(idCliente);
+    public ResponseEntity<List<Account>> getAccountsByCustomerId(@PathVariable Long idCliente) {
+        List<Account> cuentas = accountService.getAccountsByCustomerId(idCliente);
         return cuentas != null ? ResponseEntity.ok(cuentas)
                 : ResponseEntity.notFound().build();
     }

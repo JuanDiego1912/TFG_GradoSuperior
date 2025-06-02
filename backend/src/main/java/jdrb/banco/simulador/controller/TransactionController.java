@@ -1,6 +1,5 @@
 package jdrb.banco.simulador.controller;
 
-import jakarta.validation.Valid;
 import jdrb.banco.simulador.model.Transaction;
 import jdrb.banco.simulador.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<String> registrarTransaccion(@Valid @RequestBody Transaction transaction) {
+    public ResponseEntity<String> registrarTransaccion(@RequestBody Transaction transaction) {
         try {
             boolean registrada = transactionService.registerTransaction(transaction);
             if (registrada) {

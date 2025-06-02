@@ -7,7 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/clientes")
 public class CustomerController {
@@ -70,13 +72,28 @@ public class CustomerController {
         }
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Customer> getCustomerByEmail(@PathVariable String email) {
+        Customer customer = customerService.getCustomerByEmail(email);
+        if (customer != null) {
+            return ResponseEntity.ok(customer);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest login) {
         try {
+            if (login.email == null || login.password == null ||
+                    login.email.isBlank() || login.password.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email y contraseña son obligatorios"));
+            }
+
             Customer customer = customerService.login(login.getEmail(), login.getPassword());
             return ResponseEntity.ok(customer);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(401).body("Credenciales inválidas: " + e.getMessage());
+            return ResponseEntity.status(401).body(Map.of("message", e.getMessage()));
         }
     }
 

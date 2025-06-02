@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,7 +33,7 @@ public class AccountDAOImpl implements AccountDAO {
         int rowsAffected = 0;
 
         try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             if (account.getCustomerId() == null) {
                 throw new RuntimeException("Error. Cannot insert an account with a null or empty customer id");
@@ -50,6 +47,15 @@ public class AccountDAOImpl implements AccountDAO {
             ps.setFloat(3, account.getBalance());
             ps.setString(4, account.getAccountType().name());
             rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    account.setId(generatedKeys.getLong(1));
+                } else {
+                    throw new SQLException("Creating account failed, no ID obtained.");
+                }
+            }
 
         } catch (SQLException sqlEx) {
             throw new RuntimeException("Error inserting account in database", sqlEx);

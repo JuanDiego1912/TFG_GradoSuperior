@@ -1,0 +1,89 @@
+.dashboard-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px 40px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.dashboard-container h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1a237e; /* Azul oscuro */
+}
+
+.dashboard-container h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #3949ab; /* Azul intermedio */
+    border-bottom: 2px solid #3949ab;
+    padding-bottom: 8px;
+}
+
+.accounts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 25px 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.account-item {
+    background-color: #f5f7fa;
+    border-radius: 10px;
+    padding: 18px 22px;
+    box-shadow: 0 2px 6px rgba(57, 73, 171, 0.2);
+    transition: box-shadow 0.3s ease;
+    cursor: default;
+}
+
+.account-item:hover {
+    box-shadow: 0 4px 14px rgba(57, 73, 171, 0.35);
+}
+
+.account-item strong {
+    color: #1a237e;
+}
+
+.account-item br {
+    margin-bottom: 8px;
+}
+
+.dashboard-container p {
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.dashboard-container p strong {
+    color: #1a237e;
+}
+
+.error-message {
+    background-color: #fdecea;
+    color: #d32f2f;
+    border: 1px solid #f44336;
+    padding: 12px 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+    .dashboard-container {
+        padding: 20px 25px;
+        margin: 20px 15px;
+    }
+    
+    .accounts-list {
+        grid-template-columns: 1fr;
+    }
+}

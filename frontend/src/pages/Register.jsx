@@ -5,16 +5,15 @@ import "../styles/Register.css";
 
 export default function Register() {
     const [formData, setFormData] = useState({
-        id: "",
         name: "",
-        last_name: "",
+        lastName: "",
         dni: "",
         email: "",
         phone: "",
         password: "",
-        creation_date: Date.now(),
-        state: "ACTIVO",
+        state: "ACTIVE",
     });
+
     const [ error, setError ] = useState(null);
     const navigate = useNavigate();
 
@@ -26,6 +25,16 @@ export default function Register() {
         e.preventDefault();
         setError(null);
 
+        if (!/^([0-9]{8}[A-Za-z]|[XYZ][0-9]{7}[A-Za-z])$/.test(formData.dni)) {
+            setError("Formato de DNI o NIE inválido");
+            return;
+        }
+
+        if (!formData.email.includes('@')) {
+            setError("Correo electrónico inválido");
+            return;
+        }
+        
         try {
             const response = await registerCustomer(formData);
             if (response) {
@@ -34,28 +43,16 @@ export default function Register() {
                 setError("No se pudo registrar el cliente");
             }
         } catch (err) {
+            console.error("Error al registrar el cliente:", err);
             setError("Error al registrar. Verifica los datos e inténtalo de nuevo.");
         }
     };
     
-    return (
+     return (
         <div className="register-container">
             <form onSubmit={handleSubmit} className="register-form">
                 <h2 className="register-title">Registro de Cliente</h2>
                 {error && <p className="register-error">{error}</p>}
-
-                <div className="form-group">
-                    <label htmlFor="id" className="form-label">ID</label>
-                    <input
-                        id="id"
-                        name="id"
-                        type="text"
-                        value={formData.id}
-                        onChange={handleChange}
-                        className="form-input"
-                        required
-                    />
-                </div>
 
                 <div className="form-group">
                     <label htmlFor="name" className="form-label">Nombre</label>
@@ -71,12 +68,12 @@ export default function Register() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="last_name" className="form-label">Apellido</label>
+                    <label htmlFor="lastName" className="form-label">Apellido</label>
                     <input
-                        id="last_name"
-                        name="last_name"
+                        id="lastName"
+                        name="lastName"
                         type="text"
-                        value={formData.last_name}
+                        value={formData.lastName}
                         onChange={handleChange}
                         className="form-input"
                         required
@@ -134,9 +131,7 @@ export default function Register() {
                     />
                 </div>
 
-                <button type="submit" className="submit-button">
-                    Registrarse
-                </button>
+                <button type="submit" className="submit-button">Registrarse</button>
             </form>
         </div>
     );

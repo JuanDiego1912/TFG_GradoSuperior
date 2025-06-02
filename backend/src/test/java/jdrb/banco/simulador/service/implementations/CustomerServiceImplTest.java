@@ -169,7 +169,7 @@ class CustomerServiceImplTest {
         customer.setEmail(email);
         customer.setState(CustomerStates.ACTIVE);
 
-        when(customerDAO.findByEmail(email)).thenReturn(customer);
+        when(customerDAO.getCustomerByEmail(email)).thenReturn(customer);
 
         Customer result = customerService.login(email, plainPassword);
 
@@ -183,14 +183,14 @@ class CustomerServiceImplTest {
         customer.setEmail("login@test.com");
         customer.setState(CustomerStates.ACTIVE);
 
-        when(customerDAO.findByEmail("login@test.com")).thenReturn(customer);
+        when(customerDAO.getCustomerByEmail("login@test.com")).thenReturn(customer);
 
         assertThrows(IllegalArgumentException.class, () -> customerService.login("login@test.com", "wrongpass"));
     }
 
     @Test
     void login_customerNotFound_throwsException() {
-        when(customerDAO.findByEmail("missing@test.com")).thenReturn(null);
+        when(customerDAO.getCustomerByEmail("missing@test.com")).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () -> customerService.login("missing@test.com", "any"));
     }
@@ -201,7 +201,7 @@ class CustomerServiceImplTest {
         customer.setEmail("inactive@test.com");
         customer.setState(CustomerStates.BLOCKED);
 
-        when(customerDAO.findByEmail("inactive@test.com")).thenReturn(customer);
+        when(customerDAO.getCustomerByEmail("inactive@test.com")).thenReturn(customer);
 
         assertThrows(IllegalArgumentException.class, () -> customerService.login("inactive@test.com", "pass"));
     }
@@ -210,7 +210,7 @@ class CustomerServiceImplTest {
         Customer c = new Customer();
         c.setId(id);
         c.setName("John");
-        c.setLastname("Doe");
+        c.setLastName("Doe");
         c.setDni("12345678");
         c.setEmail("john.doe@test.com");
         c.setPhone("555-1234");

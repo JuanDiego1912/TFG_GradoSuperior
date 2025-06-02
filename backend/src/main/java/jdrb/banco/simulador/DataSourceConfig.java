@@ -12,7 +12,7 @@ public class DataSourceConfig {
     @Bean
     public DataSource dataSource() {
         SQLiteDataSource dataSource = new SQLiteDataSource();
-        dataSource.setUrl("jdbc:sqlite:/app/db/simuladorBancario.db");
+        dataSource.setUrl("jdbc:sqlite:db/simuladorBancario.db");
         return dataSource;
     }
 

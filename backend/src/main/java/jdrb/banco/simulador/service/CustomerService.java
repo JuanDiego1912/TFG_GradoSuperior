@@ -10,5 +10,6 @@ public interface CustomerService {
     List<Customer> getAllCustomers();
     boolean updateCustomer(Customer customer);
     boolean deleteCustomer(Long id);
+    Customer getCustomerByEmail(String email);
     Customer login(String email, String passsword);
 }

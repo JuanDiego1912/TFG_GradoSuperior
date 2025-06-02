@@ -103,7 +103,7 @@ public class ServiceImplTest {
         );
         when(accountDAO.getAccountsByClient(1L)).thenReturn(Arrays.asList(a1));
 
-        List<Account> result = accountService.getAccountsByClient(1L);
+        List<Account> result = accountService.getAccountsByCustomerId(1L);
 
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getId());
