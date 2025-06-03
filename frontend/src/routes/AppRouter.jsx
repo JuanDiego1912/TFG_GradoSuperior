@@ -3,6 +3,7 @@ import Welcome from '../pages/Welcome';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
+import Navbar from '../components/Navbar'; // Asegúrate de que exista este archivo
 import { useAuth } from '../context/AuthContext';
 
 function PrivateRoute({ children }) {
@@ -13,6 +14,7 @@ function PrivateRoute({ children }) {
 function AppRouter() {
     return (
         <BrowserRouter>
+            <Navbar /> {/* Este navbar se mostrará en todas las rutas */}
             <Routes>
                 <Route path="/" element={<Welcome />} />
                 <Route path="/login" element={<Login />} />
@@ -22,6 +24,8 @@ function AppRouter() {
                         <Dashboard />
                     </PrivateRoute>
                 } />
+                {/* Ruta por defecto si no coincide ninguna */}
+                <Route path="*" element={<Navigate to="/" />} />
             </Routes>
         </BrowserRouter>
     );

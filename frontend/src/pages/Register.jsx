@@ -81,7 +81,7 @@ export default function Register() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="dni" className="form-label">DNI</label>
+                    <label htmlFor="dni" className="form-label">DNI/NIE/Pasaporte</label>
                     <input
                         id="dni"
                         name="dni"

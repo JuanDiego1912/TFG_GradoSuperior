@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { createAccount } from "../services/accountService";
 import "../styles/AddAccountForm.css";
 
 export default function AddAccountForm({ customerId, onAccountAdded }) {
@@ -16,20 +16,14 @@ export default function AddAccountForm({ customerId, onAccountAdded }) {
         setLoading(true);
 
         try {
-            const account = {
-                customerId,
-                balance: parseFloat(saldo),
-                type: tipo,
-            };
-
-            await axios.post("http://localhost:8080/api/cuentas", account);
+            await createAccount(customerId, tipo, saldo);
             setSuccess(true);
             setSaldo(0);
             setTipo("SAVINGS");
-            onAccountAdded();
+            if (onAccountAdded) onAccountAdded();
         } catch (err) {
             console.error("Error al crear cuenta:", err);
-            setError("No se pudo crear la cuenta.");
+            setError(err.message);
         } finally {
             setLoading(false);
         }
