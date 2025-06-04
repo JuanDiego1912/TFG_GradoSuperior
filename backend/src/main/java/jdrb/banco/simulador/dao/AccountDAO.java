@@ -11,4 +11,5 @@ public interface AccountDAO {
     boolean updateAccount(Account cuenta);
     boolean deleteAccount(Long id);
     boolean deleteAccountForClient(Long idCliente, Long idCuenta);
+    Account getAccountByAccountNumber(String accountNumber);
 }

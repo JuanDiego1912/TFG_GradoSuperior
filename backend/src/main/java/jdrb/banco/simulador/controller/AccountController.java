@@ -30,6 +30,16 @@ public class AccountController {
         }
     }
 
+    @GetMapping("/porNumero")
+    public ResponseEntity<Account> getAccountByAccountNumber(@RequestParam String numero) {
+        try {
+            Account cuenta = accountService.getAccountByAccountNumber(numero);
+            return cuenta != null ? ResponseEntity.ok(cuenta) : ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
         try {
@@ -79,4 +89,6 @@ public class AccountController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
+
 }

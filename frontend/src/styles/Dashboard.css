@@ -16,18 +16,19 @@ html, body {
     padding: 2rem;
     background-color: #f4f6f8;
     min-height: 100vh;
-    max-width: 1200px;
+    max-width: none;
     margin: 0 auto;
 }
 
 .dashboard-left {
-    flex: 2;
-    min-width: 300px;
+    flex: 3;
+    min-width: 800px;
 }
 
 .dashboard-right {
     flex: 1;
-    min-width: 280px;
+    min-width: 450px;
+    height: 100%;
     background-color: #fff;
     padding: 2rem;
     border-radius: 12px;
@@ -211,6 +212,32 @@ html, body {
     color: #388e3c;
     font-size: 0.95rem;
 }
+
+.success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #66bb6a;
+    padding: 12px 20px;
+    border-radius: 8px;
+    max-width: 600px;
+    margin: 20px auto;
+    text-align: center;
+    font-weight: 600;
+}
+
+.dashboard-right {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-left: 2px solid #e5e5e5;
+}
+
+.empty-space {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+
 
 @media (max-width: 768px) {
     .dashboard-layout {

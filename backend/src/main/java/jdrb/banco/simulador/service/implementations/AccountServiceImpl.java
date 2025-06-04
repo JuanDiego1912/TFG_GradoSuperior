@@ -82,6 +82,15 @@ public class AccountServiceImpl implements AccountService {
         return accountDAO.deleteAccountForClient(customerId, accountId);
     }
 
+    @Override
+    public Account getAccountByAccountNumber(String accountNumber) {
+        if (accountNumber == null || accountNumber.isEmpty()) {
+            throw new IllegalArgumentException("Account number cannot be null or empty");
+        }
+
+        return accountDAO.getAccountByAccountNumber(accountNumber);
+    }
+
     private String generateAccountNumber() {
         StringBuilder accountNumber = new StringBuilder("ES");
         for (int i = 0; i < 22; i++) {

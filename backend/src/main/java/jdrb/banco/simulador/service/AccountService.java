@@ -11,4 +11,5 @@ public interface AccountService {
     boolean updateAccount(Account account);
     boolean deleteAccount(Long id);
     boolean deleteAccountForClient(Long customerId, Long accountId);
+    Account getAccountByAccountNumber(String accountNumber);
 }

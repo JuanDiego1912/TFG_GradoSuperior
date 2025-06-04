@@ -181,6 +181,28 @@ public class AccountDAOImpl implements AccountDAO {
         return accountDeleted > 0;
     }
 
+    @Override
+    public Account getAccountByAccountNumber(String accountNumber) {
+        String sql = "SELECT " + AccountTable.ID + " FROM " + AccountTable.TABLE_NAME
+                + " WHERE " + AccountTable.ACCOUNT_NUMBER + " = ?";
+
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(sql)){
+
+            ps.setString(1, accountNumber);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return getAccountById(rs.getLong(AccountTable.ID));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting account with account number " + accountNumber + " from database", e);
+        }
+
+        return null;
+    }
+
     private Account mapAccountFromResultSet(Long id,
                                           String accountNumber,
                                           Long customerId,

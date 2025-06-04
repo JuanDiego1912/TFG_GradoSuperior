@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/cuentas';
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 /**
  * Crea una nueva cuenta bancaria
@@ -90,8 +90,14 @@ export const depositToAccount = async (accountId, amount) => {
 export const deleteAccountForClient = async (clienteId, cuentaId) => {
   try {
     const response = await axios.delete(`${API_URL}/cliente/${clienteId}/cuenta/${cuentaId}`);
-    return response.data;
+    
+    if (response.status === 200) {
+      return true;
+    } else {
+      throw new Error("Respuesta inesperada del servidor");
+    }
   } catch (error) {
-    throw new Error("Error al eliminar la cuenta");
+    console.error("Detalle del error al eliminar cuenta:", error.response?.data || error.message);
+    throw new Error(error.response?.data || "Error al eliminar la cuenta");
   }
 };

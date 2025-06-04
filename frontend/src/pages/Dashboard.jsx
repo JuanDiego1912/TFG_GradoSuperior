@@ -3,6 +3,10 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import AddAccountForm from "./AddAccountForm";
 import DepositForm from "../components/DepositForm";
+import UpdateBalanceForm from "../components/UpdateBalanceForm";
+import TransferForm from "../components/TransferForm";
+import TransactionHistory from "../components/TransactionHistory";
+import { deleteAccountForClient } from "../services/accountService";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
@@ -11,7 +15,10 @@ function Dashboard() {
   const [cuentas, setCuentas] = useState([]);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [mostrarDeposito, setMostrarDeposito] = useState({});
+  const [mostrarActualizarSaldo, setMostrarActualizarSaldo] = useState(false);
+  const [mostrarTransferencia, setMostrarTransferencia] = useState(false);
 
   const fetchAccounts = async (clienteId) => {
     try {
@@ -47,11 +54,27 @@ function Dashboard() {
     }));
   };
 
+  const handleDeleteAccount = async (cuentaId) => {
+    const confirmar = window.confirm("¿Estás seguro de que quieres eliminar esta cuenta?");
+    if (!confirmar) return;
+
+     try {
+      await deleteAccountForClient(cliente.id, cuentaId);
+      await fetchAccounts(cliente.id);
+      setSuccessMessage("Cuenta eliminada correctamente.");
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (err) {
+      setError("Error al eliminar la cuenta.");
+    }
+  };
+
   return (
     <div className="dashboard-layout">
       <div className="dashboard-left">
         <div className="dashboard-container">
-          <h2>Bienvenido, {cliente?.nombre}</h2>
+          <h2>Bienvenido, {cliente?.name}</h2>
 
           <section className="cuentas-section">
             <h3>Tus cuentas</h3>
@@ -65,13 +88,21 @@ function Dashboard() {
                     <br />
                     Saldo: ${cuenta.balance.toFixed(2)}
 
-                    <br />
-                    <button
+                    <div className="account-actions">
+                      <button
                         className="deposit-btn"
                         onClick={() => toggleDeposito(cuenta.id)}
-                    >
+                      >
                         {mostrarDeposito[cuenta.id] ? "Cancelar depósito" : "Añadir saldo"}
-                    </button>
+                      </button>
+
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteAccount(cuenta.id)}
+                      >
+                        Eliminar cuenta
+                      </button>
+                    </div>
 
                     {mostrarDeposito[cuenta.id] && (
                       <DepositForm
@@ -79,6 +110,8 @@ function Dashboard() {
                         onDepositSuccess={() => fetchAccounts(cliente.id)}
                       />
                     )}
+
+                    <TransactionHistory accountId={cuenta.id} accounts={cuentas}/>
                   </li>
                 ))}
               </ul>
@@ -90,7 +123,14 @@ function Dashboard() {
               <strong>Saldo total:</strong> ${saldoTotal.toFixed(2)}
             </p>
 
-            <button className="toggle-form-button" onClick={() => setShowForm(!showForm)}>
+            {successMessage && (
+              <div className="success-message">{successMessage}</div>
+            )}
+
+            <button
+              className="toggle-form-button"
+              onClick={() => setShowForm(!showForm)}
+            >
               {showForm ? "Cancelar" : "Añadir nueva cuenta"}
             </button>
 
@@ -109,7 +149,34 @@ function Dashboard() {
       <div className="dashboard-right">
         <div className="empty-space">
           <h3>Área adicional</h3>
-          <p>Espacio reservado para movimientos, estadísticas u otras funciones.</p>
+
+          <button
+            className="toggle-form-button"
+            onClick={() => setMostrarActualizarSaldo(!mostrarActualizarSaldo)}
+          >
+            {mostrarActualizarSaldo ? "Cancelar" : "Modificar saldo"}
+          </button>
+
+          <button
+            className="toggle-form-button"
+            onClick={() => setMostrarTransferencia(!mostrarTransferencia)}
+          >
+            {mostrarTransferencia ? "Cancelar transferencia" : "Transferir dinero"}
+          </button>
+
+          {mostrarActualizarSaldo && (
+            <UpdateBalanceForm
+              clienteId={cliente?.id}
+              onUpdateSuccess={() => fetchAccounts(cliente.id)}
+            />
+          )}
+
+          {mostrarTransferencia && (
+            <TransferForm
+              cuentas={cuentas}
+              onTransferSuccess={() => fetchAccounts(cliente.id)}
+            />
+          )}
         </div>
       </div>
     </div>

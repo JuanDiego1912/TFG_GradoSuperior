@@ -9,7 +9,6 @@ import java.util.Date;
 public class Transaction {
 
     private Long id;
-
     private Long originAccountId;
     private Long destinationAccountId;
     private float amount;

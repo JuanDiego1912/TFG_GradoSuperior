@@ -29,7 +29,6 @@ public class TransactionServiceImpl implements TransactionService {
             throw new RuntimeException("Transaction cannot be null");
         }
 
-        validateId(transaction.getId(), "Transaction ID");
         validateId(transaction.getOriginAccountId(), "Transaction origin account ID");
         validateId(transaction.getDestinationAccountId(), "Transaction destination account ID");
 
@@ -50,6 +49,16 @@ public class TransactionServiceImpl implements TransactionService {
         if (destinationAccount == null) {
             throw new RuntimeException("Destination account does not exist");
         }
+
+        if (originAccount.getBalance() < transaction.getAmount()) {
+            throw new RuntimeException("Insufficient funds in origin account");
+        }
+
+        originAccount.setBalance(originAccount.getBalance() - transaction.getAmount());
+        destinationAccount.setBalance(destinationAccount.getBalance() + transaction.getAmount());
+
+        accountDAO.updateAccount(originAccount);
+        accountDAO.updateAccount(destinationAccount);
 
         return transactionDAO.registerTransaction(transaction);
     }
